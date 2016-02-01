@@ -3,23 +3,13 @@
 
 VaDriver::VaDriver()
 {
-    std::string flat_file_dir("/home/fac_files/siriusdb/vacpp/");
-    this->_si_file = std::string(flat_file_dir+"si.txt");
-    this->_bo_file = std::string(flat_file_dir+"bo.txt");
-}
-int VaDriver::start_models()
-{
-    read_flat_file(this->_si_file, this->_si);
-    read_flat_file(this->_bo_file, this->_bo);
-
-    return 0;
+    std::string file_name("/home/fac_files/siriusdb/vacpp/si.txt");
+    read_flat_file(file_name, this->_si);
 }
 int VaDriver::process_forever()
 {
     std::cout << this->_si.harmonic_number << std::endl;
-    std::cout << this->_bo.harmonic_number << std::endl;
-
-    std::cout << "Processing forever...\n";
+    std::cout << "Processing forever..." << std::endl;
 
     while (true)
         ;
@@ -28,8 +18,8 @@ int VaDriver::process_forever()
 }
 int VaDriver::exported_function(std::string arg)
 {
-    std::cout << "Entering exported function...\n";
-    std::cout << arg << '\n';
-    std::cout << "Returning from exported function...\n";
+    std::cout << "Entering exported function..." << std::endl;
+    std::cout << arg << std::endl;
+    std::cout << "Returning from exported function..." << std::endl;
     return 0;
 }
