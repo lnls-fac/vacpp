@@ -31,7 +31,7 @@ BINSRC = main.cpp
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))
 BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 
-.PHONY: vacpp lib debug python package clean
+.PHONY: vacpp lib debug package clean
 
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
@@ -59,15 +59,13 @@ $(OBJDIR)/$(TGTDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)/$(TGTDIR)
 $(OBJDIR)/$(TGTDIR):
 	mkdir -p $(OBJDIR)/$(TGTDIR)
 
-$(OBJDIR)/$(TGTDIR)/libvacpp.so: python $(OBJS) | $(OBJDIR)/$(TGTDIR)
+$(OBJDIR)/$(TGTDIR)/libvacpp.so: $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o $(OBJS) | $(OBJDIR)/$(TGTDIR)
 	$(CXX) -shared $(LDFLAGS) $(OBJS)  $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o $(LIBS) -o $@
-
-python: $(SWIGDIR)/vacpp.i $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o
 
 $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o: $(SWIGDIR)/vacpp_wrap.cxx | $(OBJDIR)/$(TGTDIR)
 	$(CXX) -c $(CFLAGS) $(INC) $< -o $@
 
-$(SWIGDIR)/vacpp_wrap.cxx:
+$(SWIGDIR)/vacpp_wrap.cxx: $(SWIGDIR)/vacpp.i
 	swig -c++ -python $(INC) $(SWIGDIR)/vacpp.i
 
 clean:

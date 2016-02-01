@@ -4,3 +4,4 @@ build/
 files/
 swig/*.cxx
 swig/*.py
+vacas/__pycache__/

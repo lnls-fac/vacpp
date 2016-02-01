@@ -12,9 +12,9 @@
 class VaDriver {
 public:
     VaDriver();
-    // VaDriver(const std::string& flat_file_dir);
     int start_models();
     int process_forever();
+    int exported_function(std::string arg);
 private:
     std::string _si_file, _bo_file;
     Accelerator _si;
