@@ -7,7 +7,7 @@ DBGFLAG = -O0 -g3 -std=c++11
 INCDIR = include
 SRCDIR = src
 OBJDIR = build
-PYDIR = python
+SWIGDIR = swig
 PKGDIR = package
 
 ifeq ($(MAKECMDGOALS), debug)
@@ -36,7 +36,7 @@ BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
 package: lib | $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
-	cp $(PYDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
+	cp $(SWIGDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
 	cp $(OBJDIR)/$(TGTDIR)/libvacpp.so $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so
 
 $(OBJDIR)/$(TGTDIR)/$(PKGDIR):
@@ -47,8 +47,7 @@ lib: $(OBJDIR)/$(TGTDIR)/libvacpp.so
 debug: vacpp
 
 # Find dependencies
-$(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | \
-	sed 's/.*\.o/$(OBJDIR)\/$(TGTDIR)\/&/' > .depend)
+$(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | sed 's/.*\.o/$(OBJDIR)\/$(TGTDIR)\/&/' > .depend)
 -include .depend
 
 $(OBJDIR)/$(TGTDIR)/vacpp: $(OBJS) $(BINOBJ) | $(OBJDIR)/$(TGTDIR)
@@ -61,16 +60,15 @@ $(OBJDIR)/$(TGTDIR):
 	mkdir -p $(OBJDIR)/$(TGTDIR)
 
 $(OBJDIR)/$(TGTDIR)/libvacpp.so: python $(OBJS) | $(OBJDIR)/$(TGTDIR)
-	$(CXX) -shared $(LDFLAGS) $(OBJS)  $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o \
-		$(LIBS) -o $@
+	$(CXX) -shared $(LDFLAGS) $(OBJS)  $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o $(LIBS) -o $@
 
-python: $(PYDIR)/vacpp.i $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o
+python: $(SWIGDIR)/vacpp.i $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o
 
-$(OBJDIR)/$(TGTDIR)/vacpp_wrap.o: $(PYDIR)/vacpp_wrap.cxx | $(OBJDIR)/$(TGTDIR)
+$(OBJDIR)/$(TGTDIR)/vacpp_wrap.o: $(SWIGDIR)/vacpp_wrap.cxx | $(OBJDIR)/$(TGTDIR)
 	$(CXX) -c $(CFLAGS) $(INC) $< -o $@
 
-$(PYDIR)/vacpp_wrap.cxx:
-	swig -c++ -python $(INC) $(PYDIR)/vacpp.i
+$(SWIGDIR)/vacpp_wrap.cxx:
+	swig -c++ -python $(INC) $(SWIGDIR)/vacpp.i
 
 clean:
-	-rm -rf build .depend $(PYDIR)/vacpp.py $(PYDIR)/vacpp_wrap.cxx
+	-rm -rf build .depend $(SWIGDIR)/vacpp.py $(SWIGDIR)/vacpp_wrap.cxx

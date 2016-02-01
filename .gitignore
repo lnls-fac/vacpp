@@ -2,5 +2,5 @@
 .depend
 build/
 files/
-python/
-!python/*.i
+swig/*.cxx
+swig/*.py
