@@ -8,16 +8,16 @@ INCDIR = include
 SRCDIR = src
 OBJDIR = build
 
-ifdef RELEASE
-MODEFLAG = OPTFLAG
-TGTDIR = release
-else
-MODEFLAG = DBGFLAG
+ifeq ($(MAKECMDGOALS), debug)
+MODEFLAG = $(DBGFLAG)
 TGTDIR = debug
+else
+MODEFLAG = $(OPTFLAG)
+TGTDIR = release
 endif
 
 LDFLAGS = $(MACHINE)
-CFLAGS = $(MACHINE) $(DBGFLAG) $(DFLAGS) -pthread
+CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread
 
 INC = -I./$(INCDIR)
 LIBS =
@@ -26,16 +26,16 @@ SRCS = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))
 
-.PHONY: all vacpp clean
+.PHONY: all debug clean
 
-all: vacpp
+all: $(OBJDIR)/$(TGTDIR)/vacpp
+
+debug: all
 
 # Find dependencies
 $(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | \
 	sed 's/.*\.o/$(OBJDIR)\/$(TGTDIR)\/&/' > .depend)
 -include .depend
-
-vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
 $(OBJDIR)/$(TGTDIR)/vacpp: $(OBJS) | $(OBJDIR)/$(TGTDIR)
 	$(CXX) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
