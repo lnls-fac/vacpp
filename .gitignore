@@ -1,3 +1,6 @@
 *~
 .depend
 build/
+files/
+python/
+!python/*.i

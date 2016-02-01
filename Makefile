@@ -7,6 +7,7 @@ DBGFLAG = -O0 -g3 -std=c++11
 INCDIR = include
 SRCDIR = src
 OBJDIR = build
+PYDIR = python
 
 ifeq ($(MAKECMDGOALS), debug)
 MODEFLAG = $(DBGFLAG)
@@ -17,20 +18,24 @@ TGTDIR = release
 endif
 
 LDFLAGS = $(MACHINE)
-CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread
+CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread -fPIC
 
-INC = -I./$(INCDIR)
-LIBS =
+INC = -I./$(INCDIR) -I/usr/include/python3.4
+LIBS = -ltrackcpp
 
-SRCS = main.cpp
+SRCS = \
+	main.cpp \
+	driver.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))
 
-.PHONY: all debug clean
+.PHONY: vacpp lib debug python clean
 
-all: $(OBJDIR)/$(TGTDIR)/vacpp
+vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
-debug: all
+lib: $(OBJDIR)/$(TGTDIR)/libvacpp.so
+
+debug: vacpp
 
 # Find dependencies
 $(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | \
@@ -46,5 +51,18 @@ $(OBJDIR)/$(TGTDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)/$(TGTDIR)
 $(OBJDIR)/$(TGTDIR):
 	mkdir -p $(OBJDIR)/$(TGTDIR)
 
+$(OBJDIR)/$(TGTDIR)/libvacpp.so: python $(OBJS) | $(OBJDIR)/$(TGTDIR)
+	$(CXX) -shared $(LDFLAGS) $(OBJS)  $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o \
+		$(LIBS) -o $@
+
+python: $(PYDIR)/vacpp.i $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o
+
+$(OBJDIR)/$(TGTDIR)/vacpp_wrap.o: $(PYDIR)/vacpp_wrap.cxx | $(OBJDIR)/$(TGTDIR)
+	$(CXX) -c $(CFLAGS) $(INC) $< -o $@
+
+$(PYDIR)/vacpp_wrap.cxx:
+	swig -c++ -python $(INC) $(PYDIR)/vacpp.i
+
 clean:
-	-rm -rf build .depend
+	-rm -rf build .depend $(PYDIR)/__pycache__ $(PYDIR)/vacpp.py \
+		$(PYDIR)/vacpp_wrap.cxx
