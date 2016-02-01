@@ -8,6 +8,7 @@ INCDIR = include
 SRCDIR = src
 OBJDIR = build
 PYDIR = python
+PKGDIR = package
 
 ifeq ($(MAKECMDGOALS), debug)
 MODEFLAG = $(DBGFLAG)
@@ -24,14 +25,22 @@ INC = -I./$(INCDIR) -I/usr/include/python3.4
 LIBS = -ltrackcpp
 
 SRCS = \
-	main.cpp \
 	driver.cpp
+BINSRC = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))
+BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 
-.PHONY: vacpp lib debug python clean
+.PHONY: vacpp lib debug python package clean
 
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
+
+package: lib | $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
+	cp $(PYDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
+	cp $(OBJDIR)/$(TGTDIR)/libvacpp.so $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so
+
+$(OBJDIR)/$(TGTDIR)/$(PKGDIR):
+	mkdir -p $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
 
 lib: $(OBJDIR)/$(TGTDIR)/libvacpp.so
 
@@ -42,8 +51,8 @@ $(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | \
 	sed 's/.*\.o/$(OBJDIR)\/$(TGTDIR)\/&/' > .depend)
 -include .depend
 
-$(OBJDIR)/$(TGTDIR)/vacpp: $(OBJS) | $(OBJDIR)/$(TGTDIR)
-	$(CXX) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+$(OBJDIR)/$(TGTDIR)/vacpp: $(OBJS) $(BINOBJ) | $(OBJDIR)/$(TGTDIR)
+	$(CXX) $(LDFLAGS) $(OBJS) $(BINOBJ) $(LIBS) -o $@
 
 $(OBJDIR)/$(TGTDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)/$(TGTDIR)
 	$(CXX) -c $(CFLAGS) $(INC) $< -o $@
@@ -64,5 +73,4 @@ $(PYDIR)/vacpp_wrap.cxx:
 	swig -c++ -python $(INC) $(PYDIR)/vacpp.i
 
 clean:
-	-rm -rf build .depend $(PYDIR)/__pycache__ $(PYDIR)/vacpp.py \
-		$(PYDIR)/vacpp_wrap.cxx
+	-rm -rf build .depend $(PYDIR)/vacpp.py $(PYDIR)/vacpp_wrap.cxx
