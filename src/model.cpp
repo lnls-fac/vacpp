@@ -1,9 +1,9 @@
 #include "model.h"
 
 
-Model::Model()
+Model::Model(std::atomic<bool>* stop_flag)
 {
-
+    _stop_flag = stop_flag;
 }
 void Model::process_model(Model* model)
 {
@@ -13,7 +13,7 @@ void Model::process_model(Model* model)
 }
 void Model::process()
 {
-    while (!stop_flag.load()) {
+    while (!_stop_flag->load()) {
         std::cout << "Will sleep " << sleep_time << " ms..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
         // _process_requests();

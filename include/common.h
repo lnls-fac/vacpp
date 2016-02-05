@@ -7,7 +7,5 @@
 
 typedef std::pair<std::string, double> PVValuePair;
 
-extern std::atomic<bool> stop_flag;
-
 
 #endif /* VACPP_COMMON_H */
