@@ -3,5 +3,8 @@
 
 #include <iostream>
 
+#include "driver.h"
+#include "accelerator_model.h"
+
 
 #endif /* VACPP_MAIN_H */

@@ -25,7 +25,10 @@ INC = -I./$(INCDIR) -I/usr/include/python3.4
 LIBS = -ltrackcpp
 
 SRCS = \
-	driver.cpp
+	driver.cpp \
+	globals.cpp \
+	model.cpp \
+	accelerator_model.cpp
 BINSRC = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))

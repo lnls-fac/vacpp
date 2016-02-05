@@ -5,33 +5,26 @@
 #include <string>
 #include <queue>
 #include <thread>
+#include <mutex>
 
-#include <trackcpp/accelerator.h>
-#include <trackcpp/flat_file.h>
+#include "accelerator_model.h"
+#include "common.h"
 
-
-class PVValuePair;
 
 class VaDriver {
 public:
     VaDriver();
+    ~VaDriver();
     int process_forever();
     int exported_function(std::string arg);
-    int write_pv(const std::string& name, const double& value);
-    PVValuePair read_pv();
+    int set_value(const std::string& name, const double& value);
+    PVValuePair get_value(int quantity);
 private:
     std::queue<PVValuePair> _send_queue, _recv_queue;
-    Accelerator _si;
+    AcceleratorModel* _model;
 };
 
-class PVValuePair {
-public:
-    PVValuePair(const std::string& name, const double& value) : _name(name), _value(value) { ; } // define necessary constructors
-    void print();
-private:
-    std::string _name;
-    double _value;
-};
+void print_pair(PVValuePair pair);
 
 
 #endif /* VACPP_DRIVER_H */
