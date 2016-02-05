@@ -14,9 +14,13 @@
 #include <iostream> /* DEBUG */
 
 
+extern std::atomic<bool> stop_flag;
+
+
 class Model {
 public:
     Model();
+    static void process_model(Model* m);
     void process();
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);

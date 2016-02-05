@@ -22,7 +22,7 @@ LDFLAGS = $(MACHINE)
 CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread -fPIC
 
 INC = -I./$(INCDIR) -I/usr/include/python3.4
-LIBS = -ltrackcpp
+LIBS = -lpthread -ltrackcpp
 
 SRCS = \
 	driver.cpp \

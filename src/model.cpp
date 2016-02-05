@@ -1,23 +1,26 @@
 #include "model.h"
 
 
-extern sig_atomic_t stop_flag;
-
-
 Model::Model()
 {
-    
+
+}
+void Model::process_model(Model* model)
+{
+    std::cout << "Inside process\n";
+    model->process();
+    std::cout << "Exiting thread..." << std::endl;
 }
 void Model::process()
 {
-    std::cout << "Processing..." << std::endl;
-    while (!stop_flag) {
+    while (!stop_flag.load()) {
         std::cout << "Will sleep " << sleep_time << " ms..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
         // _process_requests();
         // _update_state();
         _update_values();
     }
+    // Catch exceptions
 }
 int Model::get_number_of_values_available()
 {
