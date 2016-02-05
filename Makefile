@@ -26,7 +26,6 @@ LIBS = -lpthread -ltrackcpp
 
 SRCS = \
 	driver.cpp \
-	globals.cpp \
 	model.cpp \
 	accelerator_model.cpp
 BINSRC = main.cpp
