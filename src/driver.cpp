@@ -5,11 +5,19 @@ VaDriver::VaDriver()
 {
     _stop_flag.store(false);
 
+    // TODO: generalise
     std::string flat_file_name("/home/fac_files/siriusdb/vacpp/si.txt");
     _model = new AcceleratorModel(flat_file_name, &_stop_flag);
+
+    _start();
 }
 VaDriver::~VaDriver()
 {
+    if(_stop_flag.load())
+        _stop();
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));        
+
     delete _model;
     delete _model_thread;
     delete _update_thread;
@@ -18,32 +26,9 @@ VaDriver::~VaDriver()
 void VaDriver::update_driver(VaDriver *driver)
 {
     /*
-     * Driver update thread function
+     * Static driver update thread function
      */
     driver->_update();
-}
-
-void VaDriver::stop()
-{
-    _stop_flag.store(true);
-}
-int VaDriver::start_models()
-{
-    /*
-    * Start model threads
-    */
-    _model_thread = new std::thread(&Model::process_model, _model);
-    _model_thread->detach();
-    return 0;
-}
-int VaDriver::start_update()
-{
-    /*
-    * Start driver update thread
-    */
-    _update_thread = new std::thread(&VaDriver::update_driver, this);
-    _update_thread->detach();
-    return 0;
 }
 
 int VaDriver::set_value(const std::string& name, const double& value)
@@ -83,6 +68,27 @@ std::vector<PVValuePair> VaDriver::get_values(int quantity)
     return values;
 }
 
+void VaDriver::_start()
+{
+    _start_models();
+    _start_update();
+}
+void VaDriver::_start_models()
+{
+    _model_thread = new std::thread(&Model::process_model, _model);
+    _model_thread->detach();
+}
+void VaDriver::_start_update()
+{
+    _update_thread = new std::thread(&VaDriver::update_driver, this);
+    _update_thread->detach();
+}
+void VaDriver::_stop()
+{
+    _stop_flag.store(true);
+    // TODO: check if threads stopped
+}
+
 void VaDriver::_update()
 {
     while (!_stop_flag.load()) {
@@ -110,7 +116,7 @@ void VaDriver::_recv_values_from_models()
 
 void print_pairs(const std::vector<PVValuePair>& pairs)
 {
-    for (auto& pair : pairs)
+    for (const auto& pair : pairs)
         print_pair(pair);
 }
 

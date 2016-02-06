@@ -21,10 +21,6 @@ public:
     VaDriver();
     ~VaDriver();
 
-    void stop();
-    int start_models();
-    int start_update();
-
     int set_value(const std::string& name, const double& value);
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
@@ -37,6 +33,11 @@ private:
     AcceleratorModel* _model;
     std::thread* _update_thread;
     std::thread* _model_thread;
+
+    void _start();
+    void _start_models();
+    void _start_update();
+    void _stop();
 
     void _update();
     void _send_values_to_models();
