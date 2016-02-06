@@ -1,10 +1,17 @@
 %module vacpp
 
 %{
-#include "driver.h"
+    #include "common.h"
+    #include "driver.h"
 %}
 
 %include "std_string.i"
-/*%include "std_vector.i"*/
+%include "std_vector.i"
 
+
+%include "common.h"
 %include "driver.h"
+
+namespace std {
+    %template(CppPVValuePairVector) vector<PVValuePair>;
+}

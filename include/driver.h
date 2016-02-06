@@ -1,7 +1,6 @@
 #ifndef VACPP_DRIVER_H
 #define VACPP_DRIVER_H
 
-#include <iostream>
 #include <string>
 #include <chrono>
 #include <vector>
@@ -11,6 +10,8 @@
 
 #include "accelerator_model.h"
 #include "common.h"
+
+#include <iostream> /* FIXME: debug include */
 
 
 class VaDriver {
@@ -31,8 +32,8 @@ private:
     const int sleep_time = 100; // ms
 
     std::atomic<bool> _stop_flag;
-    std::mutex _send_mutex, _recv_mutex;
-    std::queue<PVValuePair> _send_queue, _recv_queue;
+    std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
+    std::queue<PVValuePair> _queue_to_server, _queue_from_server;
     AcceleratorModel* _model;
     std::thread* _update_thread;
     std::thread* _model_thread;
@@ -42,7 +43,8 @@ private:
     void _recv_values_from_models();
 };
 
-void print_pair(PVValuePair pair);
+void print_pairs(const std::vector<PVValuePair>& pairs);
+void print_pair(const PVValuePair& pair);
 
 
 #endif /* VACPP_DRIVER_H */

@@ -27,8 +27,8 @@ private:
     const int sleep_time = 50; // ms
 
     std::atomic<bool>* _stop_flag;
-    std::mutex _send_mutex, _recv_mutex;
-    std::queue<PVValuePair> _send_queue, _recv_queue;
+    std::mutex _queue_to_driver_mutex, _queue_from_driver_mutex;
+    std::queue<PVValuePair> _queue_to_driver, _queue_from_driver;
 
     void _process_requests();
     virtual void _update_state() = 0;

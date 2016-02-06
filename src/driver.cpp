@@ -20,9 +20,7 @@ void VaDriver::update_driver(VaDriver *driver)
     /*
      * Driver update thread function
      */
-    std::cout << "Inside update_driver()...\n";
     driver->_update();
-    std::cout << "Exiting update_driver()...\n";
 }
 
 void VaDriver::stop()
@@ -55,8 +53,8 @@ int VaDriver::set_value(const std::string& name, const double& value)
      */
     PVValuePair _pair(name, value);
 
-    std::unique_lock<std::mutex> ql(_recv_mutex);
-    this->_recv_queue.push(_pair);
+    std::unique_lock<std::mutex> ql(_queue_from_server_mutex);
+    this->_queue_from_server.push(_pair);
 
     return 0;
 }
@@ -65,8 +63,8 @@ int VaDriver::get_number_of_values_available()
     /*
      * Get current number of values to be read from queue
      */
-    std::unique_lock<std::mutex> ql(_send_mutex);
-    return _send_queue.size();
+    std::unique_lock<std::mutex> ql(_queue_to_server_mutex);
+    return _queue_to_server.size();
 }
 std::vector<PVValuePair> VaDriver::get_values(int quantity)
 {
@@ -75,11 +73,11 @@ std::vector<PVValuePair> VaDriver::get_values(int quantity)
      */
     std::vector<PVValuePair> values;
 
-    std::unique_lock<std::mutex> ql(_send_mutex);
+    std::unique_lock<std::mutex> ql(_queue_to_server_mutex);
     for (int i=0; i<quantity; ++i) {
-        PVValuePair& p = _send_queue.front();
+        PVValuePair& p = _queue_to_server.front();
         values.push_back(std::move(p));
-        this->_send_queue.pop();
+        this->_queue_to_server.pop();
     }
 
     return values;
@@ -88,16 +86,8 @@ std::vector<PVValuePair> VaDriver::get_values(int quantity)
 void VaDriver::_update()
 {
     while (!_stop_flag.load()) {
-        // Pass values to models
         _send_values_to_models();
         _recv_values_from_models();
-        // Read values from models
-
-        // if (!this->_recv_queue.empty()) {
-        //     PVValuePair _pair = this->_recv_queue.front();
-        //     print_pair(_pair);
-        //     this->_recv_queue.pop();
-        // }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     }
 }
@@ -107,10 +97,24 @@ void VaDriver::_send_values_to_models()
 }
 void VaDriver::_recv_values_from_models()
 {
+    int quantity = _model->get_number_of_values_available();
+    if (quantity == 0)
+        return;
 
+    // TODO: Loop over all models
+    std::vector<PVValuePair> values = _model->get_values(quantity);
+    std::unique_lock<std::mutex> ql(_queue_to_server_mutex);
+    for (auto& value : values)
+        _queue_to_server.push(std::move(value));
 }
 
-void print_pair(PVValuePair pair)
+void print_pairs(const std::vector<PVValuePair>& pairs)
+{
+    for (auto& pair : pairs)
+        print_pair(pair);
+}
+
+void print_pair(const PVValuePair& pair)
 {
     std::cout << pair.first << ": " << pair.second << std::endl;
 }
