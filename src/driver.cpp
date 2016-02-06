@@ -3,21 +3,15 @@
 
 VaDriver::VaDriver()
 {
-    _stop_flag.store(false);
+    _update_duration = std::chrono::milliseconds(_update_duration_ms);
+    _stop_flag.store(true);
 
     // TODO: generalise
     std::string flat_file_name("/home/fac_files/siriusdb/vacpp/si.txt");
     _model = new AcceleratorModel(flat_file_name, &_stop_flag);
-
-    _start();
 }
 VaDriver::~VaDriver()
 {
-    if(_stop_flag.load())
-        _stop();
-
-    std::this_thread::sleep_for(std::chrono::seconds(1));        
-
     delete _model;
     delete _model_thread;
     delete _update_thread;
@@ -31,6 +25,29 @@ void VaDriver::update_driver(VaDriver *driver)
     driver->_update();
 }
 
+int VaDriver::start()
+{
+    if (_is_running())
+        return ERROR_DRIVER_ALREADY_STARTED;
+
+    _stop_flag.store(false);
+
+    _start_models();
+    _start_update();
+    // TODO: check if everything is up and return status
+    return SUCCESS;
+}
+int VaDriver::stop()
+{
+    if (!_is_running())
+        return ERROR_DRIVER_NOT_STARTED;
+
+    _stop_flag.store(true);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // TODO: check if threads stopped and return status
+    return SUCCESS;
+}
+
 int VaDriver::set_value(const std::string& name, const double& value)
 {
     /*
@@ -41,7 +58,7 @@ int VaDriver::set_value(const std::string& name, const double& value)
     std::unique_lock<std::mutex> ql(_queue_from_server_mutex);
     this->_queue_from_server.push(_pair);
 
-    return 0;
+    return SUCCESS;
 }
 int VaDriver::get_number_of_values_available()
 {
@@ -68,11 +85,6 @@ std::vector<PVValuePair> VaDriver::get_values(int quantity)
     return values;
 }
 
-void VaDriver::_start()
-{
-    _start_models();
-    _start_update();
-}
 void VaDriver::_start_models()
 {
     _model_thread = new std::thread(&Model::process_model, _model);
@@ -83,23 +95,28 @@ void VaDriver::_start_update()
     _update_thread = new std::thread(&VaDriver::update_driver, this);
     _update_thread->detach();
 }
-void VaDriver::_stop()
+inline bool VaDriver::_is_running()
 {
-    _stop_flag.store(true);
-    // TODO: check if threads stopped
+    return !_stop_flag.load();
 }
 
 void VaDriver::_update()
 {
-    while (!_stop_flag.load()) {
-        _send_values_to_models();
-        _recv_values_from_models();
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
-    }
+    while (_is_running())
+        _process_communication_and_wait();
+}
+void VaDriver::_process_communication_and_wait()
+{
+    const auto start_time = Clock::now();
+
+    _send_values_to_models();
+    _recv_values_from_models();
+
+    _wait_from_start_time(start_time);
 }
 void VaDriver::_send_values_to_models()
 {
-
+    // TODO: add code
 }
 void VaDriver::_recv_values_from_models()
 {
@@ -113,7 +130,14 @@ void VaDriver::_recv_values_from_models()
     for (auto& value : values)
         _queue_to_server.push(std::move(value));
 }
+void VaDriver::_wait_from_start_time(const TimePoint &start_time)
+{
+    const auto delta = Clock::now() - start_time;
+    if (delta < _update_duration)
+    std::this_thread::sleep_for(_update_duration-delta);
+}
 
+// TODO: remove debug print functions
 void print_pairs(const std::vector<PVValuePair>& pairs)
 {
     for (const auto& pair : pairs)

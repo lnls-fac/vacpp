@@ -21,12 +21,16 @@ public:
     VaDriver();
     ~VaDriver();
 
+    int start();
+    int stop();
+
     int set_value(const std::string& name, const double& value);
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
 private:
-    const int sleep_time = 100; // ms
+    static const int _update_duration_ms = 100;
 
+    std::chrono::milliseconds _update_duration;
     std::atomic<bool> _stop_flag;
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
     std::queue<PVValuePair> _queue_to_server, _queue_from_server;
@@ -34,12 +38,13 @@ private:
     std::thread* _update_thread;
     std::thread* _model_thread;
 
-    void _start();
     void _start_models();
     void _start_update();
-    void _stop();
+    inline bool _is_running();
 
     void _update();
+    void _process_communication_and_wait();
+    void _wait_from_start_time(const TimePoint& start_time);
     void _send_values_to_models();
     void _recv_values_from_models();
 };

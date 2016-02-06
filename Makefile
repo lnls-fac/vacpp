@@ -69,7 +69,7 @@ $(OBJDIR)/$(TGTDIR)/libvacpp.so: $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o $(OBJS) | $(OB
 $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o: $(SWIGDIR)/vacpp_wrap.cxx | $(OBJDIR)/$(TGTDIR)
 	$(CXX) -c $(CFLAGS) $(INC) $< -o $@
 
-$(SWIGDIR)/vacpp.py $(SWIGDIR)/vacpp_wrap.cxx: $(SWIGDIR)/vacpp.i
+$(SWIGDIR)/vacpp.py $(SWIGDIR)/vacpp_wrap.cxx: $(SWIGDIR)/vacpp.i $(OBJS)
 	swig -c++ -python $(INC) $(SWIGDIR)/vacpp.i
 
 $(OBJDIR)/$(TGTDIR):
