@@ -6,14 +6,14 @@ void Model::process_model(Model* model)
     model->process();
 }
 
-Model::Model(std::atomic<bool>* stop_flag)
+Model::Model(std::atomic<bool>* is_running_flag)
 {
-    _stop_flag = stop_flag;
+    _is_running_flag = is_running_flag;
 }
 
 void Model::process()
 {
-    while (!_stop_flag->load()) {
+    while (_is_running()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
         _process_requests();
         _update_state();
@@ -39,6 +39,11 @@ std::vector<PVValuePair> Model::get_values(int quantity)
     }
 
     return values;
+}
+
+inline bool Model::_is_running()
+{
+    return _is_running_flag->load();
 }
 
 void Model::_process_requests()

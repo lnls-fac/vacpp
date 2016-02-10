@@ -16,7 +16,7 @@
 
 class VaDriver {
 public:
-    static void update_driver(VaDriver* driver);
+    static void update_driver(VaDriver* driver); // update thread function
 
     VaDriver();
     ~VaDriver();
@@ -28,29 +28,35 @@ public:
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
 private:
-    static const int _update_duration_ms = 100;
+    static const int _min_update_duration_ms = 100;
 
-    std::chrono::milliseconds _update_duration;
-    std::atomic<bool> _stop_flag;
+    std::chrono::milliseconds _min_update_duration;
+    std::atomic<bool> _is_running_flag;
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
     std::queue<PVValuePair> _queue_to_server, _queue_from_server;
-    AcceleratorModel* _model;
+
     std::thread* _update_thread;
     std::thread* _model_thread;
 
+    AcceleratorModel* _model; // TODO: generalise
+
+    // Thread start functions
     void _start_models();
     void _start_update();
+
     inline bool _is_running();
+    inline bool _set_is_running_flag();
+    inline bool _unset_is_running_flag();
 
     void _update();
     void _process_communication_and_wait();
-    void _wait_from_start_time(const TimePoint& start_time);
+    void _wait_from(const TimePoint& start_time);
     void _send_values_to_models();
     void _recv_values_from_models();
 };
 
-void print_pairs(const std::vector<PVValuePair>& pairs);
-void print_pair(const PVValuePair& pair);
+void print_pairs(const std::vector<PVValuePair>& pairs); // debug
+void print_pair(const PVValuePair& pair); // debug
 
 
 #endif /* VACPP_DRIVER_H */

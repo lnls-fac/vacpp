@@ -3,15 +3,19 @@
 
 VaDriver::VaDriver()
 {
-    _update_duration = std::chrono::milliseconds(_update_duration_ms);
-    _stop_flag.store(true);
+    _min_update_duration = std::chrono::milliseconds(_min_update_duration_ms);
+    _unset_is_running_flag();
 
     // TODO: generalise
+    //_load_models();
     std::string flat_file_name("/home/fac_files/siriusdb/vacpp/si.txt");
-    _model = new AcceleratorModel(flat_file_name, &_stop_flag);
+    _model = new AcceleratorModel(flat_file_name, &_is_running_flag);
 }
 VaDriver::~VaDriver()
 {
+    // TODO: generalise
+    //_delete_models();
+    //_delete_threads();
     delete _model;
     delete _model_thread;
     delete _update_thread;
@@ -30,7 +34,7 @@ int VaDriver::start()
     if (_is_running())
         return ERROR_DRIVER_ALREADY_STARTED;
 
-    _stop_flag.store(false);
+    _set_is_running_flag();
 
     _start_models();
     _start_update();
@@ -42,7 +46,7 @@ int VaDriver::stop()
     if (!_is_running())
         return ERROR_DRIVER_NOT_STARTED;
 
-    _stop_flag.store(true);
+    _unset_is_running_flag();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     // TODO: check if threads stopped and return status
     return SUCCESS;
@@ -53,10 +57,8 @@ int VaDriver::set_value(const std::string& name, const double& value)
     /*
      * Set a model value
      */
-    PVValuePair _pair(name, value);
-
     std::unique_lock<std::mutex> ql(_queue_from_server_mutex);
-    this->_queue_from_server.push(_pair);
+    this->_queue_from_server.emplace(name, value);
 
     return SUCCESS;
 }
@@ -95,9 +97,18 @@ void VaDriver::_start_update()
     _update_thread = new std::thread(&VaDriver::update_driver, this);
     _update_thread->detach();
 }
+
 inline bool VaDriver::_is_running()
 {
-    return !_stop_flag.load();
+    return _is_running_flag.load();
+}
+inline bool VaDriver::_set_is_running_flag()
+{
+    _is_running_flag.store(true);
+}
+inline bool VaDriver::_unset_is_running_flag()
+{
+    _is_running_flag.store(false);
 }
 
 void VaDriver::_update()
@@ -112,7 +123,7 @@ void VaDriver::_process_communication_and_wait()
     _send_values_to_models();
     _recv_values_from_models();
 
-    _wait_from_start_time(start_time);
+    _wait_from(start_time);
 }
 void VaDriver::_send_values_to_models()
 {
@@ -130,11 +141,11 @@ void VaDriver::_recv_values_from_models()
     for (auto& value : values)
         _queue_to_server.push(std::move(value));
 }
-void VaDriver::_wait_from_start_time(const TimePoint &start_time)
+void VaDriver::_wait_from(const TimePoint &start_time)
 {
     const auto delta = Clock::now() - start_time;
-    if (delta < _update_duration)
-    std::this_thread::sleep_for(_update_duration-delta);
+    if (delta < _min_update_duration)
+    std::this_thread::sleep_for(_min_update_duration-delta);
 }
 
 // TODO: remove debug print functions
