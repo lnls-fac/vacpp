@@ -27,7 +27,8 @@ LIBS = -lpthread -ltrackcpp
 SRCS = \
 	driver.cpp \
 	model.cpp \
-	accelerator_model.cpp
+	accelerator_model.cpp \
+	model_manager.cpp
 BINSRC = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))

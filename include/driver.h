@@ -8,8 +8,9 @@
 #include <thread>
 #include <mutex>
 
-#include "accelerator_model.h"
 #include "common.h"
+#include "accelerator_model.h"
+#include "model_manager.h"
 
 #include <iostream> /* FIXME: debug include */
 
@@ -35,18 +36,19 @@ private:
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
     std::queue<PVValuePair> _queue_to_server, _queue_from_server;
 
-    std::thread* _update_thread;
-    std::thread* _model_thread;
+    std::thread* _update_thread = nullptr;
+    std::thread* _model_thread = nullptr;
 
-    AcceleratorModel* _model; // TODO: generalise
+    AcceleratorModel* _model = nullptr; // TODO: generalise
+    ModelManager* _model_manager = nullptr;
 
     // Thread start functions
     void _start_models();
     void _start_update();
 
     inline bool _is_running();
-    inline bool _set_is_running_flag();
-    inline bool _unset_is_running_flag();
+    inline void _set_is_running_flag();
+    inline void _unset_is_running_flag();
 
     void _update();
     void _process_communication_and_wait();

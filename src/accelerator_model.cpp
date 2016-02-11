@@ -10,3 +10,9 @@ void AcceleratorModel::_update_state()
 {
     // TODO: add code
 }
+
+void AcceleratorModel::print()
+{
+    // FIXME: debug
+    std::cout << _accelerator.harmonic_number << std::endl;
+}

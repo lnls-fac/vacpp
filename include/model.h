@@ -23,6 +23,8 @@ public:
     void process();
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
+
+    virtual void print() = 0;
 private:
     const int sleep_time = 50; // ms
 

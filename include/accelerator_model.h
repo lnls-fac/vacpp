@@ -11,6 +11,7 @@ class AcceleratorModel : public Model {
 public:
     AcceleratorModel(std::string flat_file_name, std::atomic<bool>* stop_flag);
     virtual void _update_state();
+    void print();
 private:
     Accelerator _accelerator;
 };

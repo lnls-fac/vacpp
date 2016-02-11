@@ -6,6 +6,8 @@ VaDriver::VaDriver()
     _min_update_duration = std::chrono::milliseconds(_min_update_duration_ms);
     _unset_is_running_flag();
 
+    // _model_manager = new ModelManager(&_is_running_flag);
+
     // TODO: generalise
     //_load_models();
     std::string flat_file_name("/home/fac_files/siriusdb/vacpp/si.txt");
@@ -16,6 +18,7 @@ VaDriver::~VaDriver()
     // TODO: generalise
     //_delete_models();
     //_delete_threads();
+    // delete _model_manager;
     delete _model;
     delete _model_thread;
     delete _update_thread;
@@ -102,11 +105,11 @@ inline bool VaDriver::_is_running()
 {
     return _is_running_flag.load();
 }
-inline bool VaDriver::_set_is_running_flag()
+inline void VaDriver::_set_is_running_flag()
 {
     _is_running_flag.store(true);
 }
-inline bool VaDriver::_unset_is_running_flag()
+inline void VaDriver::_unset_is_running_flag()
 {
     _is_running_flag.store(false);
 }

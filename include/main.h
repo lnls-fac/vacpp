@@ -8,6 +8,7 @@
 
 #include "driver.h"
 #include "accelerator_model.h"
+#include "model_manager.h"
 
 
 #endif /* VACPP_MAIN_H */
