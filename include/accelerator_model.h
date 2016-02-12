@@ -9,7 +9,7 @@
 
 class AcceleratorModel : public Model {
 public:
-    AcceleratorModel(std::string flat_file_name, std::atomic<bool>* stop_flag);
+    AcceleratorModel(std::string flat_file_name);
     virtual void _update_state();
     void print();
 private:

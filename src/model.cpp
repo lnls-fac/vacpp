@@ -1,24 +1,21 @@
 #include "model.h"
 
 
-void Model::process_model(Model* model)
+void Model::process_model(Model& model, Flag& is_running)
 {
-    model->process();
-}
-
-Model::Model(std::atomic<bool>* is_running_flag)
-{
-    _is_running_flag = is_running_flag;
+    /*
+     * Static model processing thread function
+     */
+    while (is_running.load())
+        model.process();
 }
 
 void Model::process()
 {
-    while (_is_running()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
-        _process_requests();
-        _update_state();
-        _update_values();
-    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+    _process_requests();
+    _update_state();
+    _update_values();
     // TODO: catch exceptions
 }
 int Model::get_number_of_values_available()
@@ -39,11 +36,6 @@ std::vector<PVValuePair> Model::get_values(int quantity)
     }
 
     return values;
-}
-
-inline bool Model::_is_running()
-{
-    return _is_running_flag->load();
 }
 
 void Model::_process_requests()

@@ -16,7 +16,7 @@ static std::vector<std::string> model_prefixes = {
 
 class ModelManager {
 public:
-    ModelManager(std::atomic<bool>* is_running_flag);
+    ModelManager();
     ~ModelManager();
     Model* get_model_by_prefix(std::string prefix);
 private:
@@ -26,11 +26,9 @@ private:
 
 class ModelFactory {
 public:
-    static Model* create_model(const std::string& prefix,
-        std::atomic<bool>* is_running_flag);
+    static Model* create_model(const std::string& prefix);
 private:
-    static Model* _create_accelerator_model(const std::string& prefix,
-        std::atomic<bool>* is_running_flag);
+    static Model* _create_accelerator_model(const std::string& prefix);
 };
 
 

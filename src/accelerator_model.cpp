@@ -1,8 +1,7 @@
 #include "accelerator_model.h"
 
 
-AcceleratorModel::AcceleratorModel(std::string flat_file_name,
-    std::atomic<bool>* stop_flag) : Model(stop_flag)
+AcceleratorModel::AcceleratorModel(std::string flat_file_name)
 {
     read_flat_file(flat_file_name, this->_accelerator);
 }

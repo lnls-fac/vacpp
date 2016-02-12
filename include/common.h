@@ -7,6 +7,7 @@
 #include <utility>
 
 
+typedef std::atomic<bool> Flag;
 typedef std::pair<std::string, double> PVValuePair;
 typedef std::chrono::steady_clock Clock;
 typedef std::chrono::steady_clock::time_point TimePoint;

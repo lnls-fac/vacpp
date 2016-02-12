@@ -7,6 +7,7 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <unordered_map>
 
 #include "common.h"
 #include "accelerator_model.h"
@@ -17,7 +18,8 @@
 
 class VaDriver {
 public:
-    static void update_driver(VaDriver* driver); // update thread function
+    // Update thread function
+    static void update_driver(VaDriver& driver, Flag& is_running);
 
     VaDriver();
     ~VaDriver();
@@ -29,32 +31,27 @@ public:
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
 private:
-    static const int _min_update_duration_ms = 100;
+    static const std::chrono::milliseconds _min_update_duration;
 
-    std::chrono::milliseconds _min_update_duration;
-    std::atomic<bool> _is_running_flag;
+    Flag _is_running;
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
     std::queue<PVValuePair> _queue_to_server, _queue_from_server;
-
     std::thread* _update_thread = nullptr;
-    std::thread* _model_thread = nullptr;
+    std::unordered_map<std::string, std::thread*> _model_threads;
 
-    AcceleratorModel* _model = nullptr; // TODO: generalise
-    ModelManager* _model_manager = nullptr;
+    ModelManager _model_manager;
 
     // Thread start functions
-    void _start_models();
-    void _start_update();
+    void _start_model_threads();
+    std::thread* _start_model_thread(Model* model);
+    void _start_update_thread();
+    void _delete_model_threads();
 
-    inline bool _is_running();
-    inline void _set_is_running_flag();
-    inline void _unset_is_running_flag();
-
-    void _update();
     void _process_communication_and_wait();
     void _wait_from(const TimePoint& start_time);
     void _send_values_to_models();
     void _recv_values_from_models();
+    void _recv_values_from_model(Model* model);
 };
 
 void print_pairs(const std::vector<PVValuePair>& pairs); // debug
