@@ -17,6 +17,9 @@ void Model::process_model(Model& model, Flag& is_running)
 
 void Model::process()
 {
+    /*
+     * Main model processing function
+     */
     _process_requests();
     _update_state();
     _update_values();
@@ -40,6 +43,11 @@ std::vector<PVValuePair> Model::get_values(int quantity)
     }
 
     return values;
+}
+void Model::set_value(const PVValuePair& pair)
+{
+    std::unique_lock<std::mutex> ql(_queue_from_driver_mutex);
+    _queue_from_driver.push(std::move(pair));
 }
 
 void Model::_process_requests()

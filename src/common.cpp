@@ -6,5 +6,5 @@ void _wait_interval_from(const std::chrono::milliseconds& interval,
 {
     const auto delta = Clock::now() - start_time;
     if (delta < interval)
-    std::this_thread::sleep_for(interval-delta);
+        std::this_thread::sleep_for(interval-delta);
 }

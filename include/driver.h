@@ -25,6 +25,7 @@ public:
     ~VaDriver();
 
     int start();
+    void process_communication();
     int stop();
 
     int set_value(const std::string& name, const double& value);
@@ -48,8 +49,8 @@ private:
     void _delete_model_threads();
     void _delete_update_thread();
 
-    void _process_communication();
     void _send_values_to_models();
+    const std::string _get_prefix_from_name(const std::string& name);
     void _recv_values_from_models();
     void _recv_values_from_model(Model* model);
 };

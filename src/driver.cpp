@@ -26,7 +26,7 @@ void VaDriver::update_driver(VaDriver& driver, Flag& is_running)
      */
     while (is_running.load()) {
         auto start_time = Clock::now();
-        driver._process_communication();
+        driver.process_communication();
         _wait_interval_from(_min_update_duration, start_time);
     }
 }
@@ -41,8 +41,14 @@ int VaDriver::start()
 
     _start_model_threads();
     _start_update_thread();
+
     // TODO: check if everything is up and return status
     return SUCCESS;
+}
+void VaDriver::process_communication()
+{
+    _send_values_to_models();
+    _recv_values_from_models();
 }
 int VaDriver::stop()
 {
@@ -52,6 +58,7 @@ int VaDriver::stop()
 
     _is_running.store(false);
     std::this_thread::sleep_for(_finalisation_wait);
+    
     // TODO: check if threads stopped and return status
     return SUCCESS;
 }
@@ -126,14 +133,24 @@ void VaDriver::_delete_update_thread()
     }
 }
 
-void VaDriver::_process_communication()
-{
-    _send_values_to_models();
-    _recv_values_from_models();
-}
 void VaDriver::_send_values_to_models()
 {
-    // TODO: add code
+    // TODO: refactor
+    std::unique_lock<std::mutex> ql(_queue_from_server_mutex);
+    for (int i=0; i<_queue_from_server.size(); ++i) {
+        const PVValuePair& pair = _queue_from_server.front();
+        const std::string& name = pair.first;
+        const std::string& prefix = _get_prefix_from_name(name);
+        Model* model = _model_manager.get_model_by_prefix(prefix);
+        model->set_value(pair);
+        _queue_from_server.pop();
+    }
+
+}
+const std::string VaDriver::_get_prefix_from_name(const std::string& name)
+{
+    // TODO: generalise
+    return std::string("si");
 }
 void VaDriver::_recv_values_from_models()
 {

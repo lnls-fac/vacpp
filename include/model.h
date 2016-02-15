@@ -21,6 +21,7 @@ public:
     void process();
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
+    void set_value(const PVValuePair& pair);
 
     virtual void print() = 0;
 private:
