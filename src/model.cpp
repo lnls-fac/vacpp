@@ -1,18 +1,22 @@
 #include "model.h"
 
 
+const std::chrono::milliseconds Model::_min_process_duration(50);
+
 void Model::process_model(Model& model, Flag& is_running)
 {
     /*
      * Static model processing thread function
      */
-    while (is_running.load())
+    while (is_running.load()) {
+        auto start_time = Clock::now();
         model.process();
+        _wait_interval_from(_min_process_duration, start_time);
+    }
 }
 
 void Model::process()
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     _process_requests();
     _update_state();
     _update_values();
@@ -48,7 +52,7 @@ void Model::_update_state()
 }
 void Model::_update_values()
 {
-    static int i = 0; // FIXME: debug value
+    static int i = 0; // FIXME: debug code
 
     std::unique_lock<std::mutex> ql(_queue_to_driver_mutex);
     _queue_to_driver.push(PVValuePair(std::string("PVNAME"), double(i++)));

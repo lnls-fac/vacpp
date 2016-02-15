@@ -32,23 +32,23 @@ public:
     std::vector<PVValuePair> get_values(int quantity);
 private:
     static const std::chrono::milliseconds _min_update_duration;
+    static const std::chrono::milliseconds _finalisation_wait;
 
     Flag _is_running;
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
     std::queue<PVValuePair> _queue_to_server, _queue_from_server;
-    std::thread* _update_thread = nullptr;
     std::unordered_map<std::string, std::thread*> _model_threads;
+    std::thread* _update_thread;
 
     ModelManager _model_manager;
 
-    // Thread start functions
     void _start_model_threads();
     std::thread* _start_model_thread(Model* model);
     void _start_update_thread();
     void _delete_model_threads();
+    void _delete_update_thread();
 
-    void _process_communication_and_wait();
-    void _wait_from(const TimePoint& start_time);
+    void _process_communication();
     void _send_values_to_models();
     void _recv_values_from_models();
     void _recv_values_from_model(Model* model);

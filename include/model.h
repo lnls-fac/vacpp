@@ -24,7 +24,7 @@ public:
 
     virtual void print() = 0;
 private:
-    const int sleep_time = 50; // ms
+    static const std::chrono::milliseconds _min_process_duration;
 
     std::mutex _queue_to_driver_mutex, _queue_from_driver_mutex;
     std::queue<PVValuePair> _queue_to_driver, _queue_from_driver;

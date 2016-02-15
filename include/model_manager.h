@@ -10,7 +10,8 @@
 
 
 static std::vector<std::string> model_prefixes = {
-    "si", "bo"
+    "si",
+    "bo"
 };
 
 

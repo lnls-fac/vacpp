@@ -25,6 +25,7 @@ INC = -I./$(INCDIR) -I/usr/include/python3.4
 LIBS = -lpthread -ltrackcpp
 
 SRCS = \
+	common.cpp \
 	driver.cpp \
 	model.cpp \
 	accelerator_model.cpp \
