@@ -112,12 +112,6 @@ std::thread* VaDriver::_start_model_thread(Model* model)
     model_thread->detach();
     return model_thread;
 }
-void VaDriver::_start_update_thread()
-{
-    _update_thread = new std::thread(&VaDriver::update_driver,
-        std::ref(*this), std::ref(_is_running));
-    _update_thread->detach();
-}
 void VaDriver::_delete_model_threads()
 {
     for (const auto& prefix : model_prefixes) {
@@ -125,6 +119,13 @@ void VaDriver::_delete_model_threads()
             delete _model_threads[prefix];
         }
     }
+}
+
+void VaDriver::_start_update_thread()
+{
+    _update_thread = new std::thread(&VaDriver::update_driver,
+        std::ref(*this), std::ref(_is_running));
+    _update_thread->detach();
 }
 void VaDriver::_delete_update_thread()
 {
@@ -135,23 +136,31 @@ void VaDriver::_delete_update_thread()
 
 void VaDriver::_send_values_to_models()
 {
-    // TODO: refactor
     std::unique_lock<std::mutex> ql(_queue_from_server_mutex);
-    for (int i=0; i<_queue_from_server.size(); ++i) {
-        const PVValuePair& pair = _queue_from_server.front();
-        const std::string& name = pair.first;
-        const std::string& prefix = _get_prefix_from_name(name);
-        Model* model = _model_manager.get_model_by_prefix(prefix);
-        model->set_value(pair);
-        _queue_from_server.pop();
+    int n = _queue_from_server.size();
+    for (int i=0; i<n; ++i) {
+        _send_value_to_model();
     }
-
+}
+void VaDriver::_send_value_to_model()
+{
+    const PVValuePair& pair = _queue_from_server.front();
+    Model* model = _get_model_from_pv_value_pair(pair);
+    model->set_value(pair);
+    _queue_from_server.pop();
+}
+Model* VaDriver::_get_model_from_pv_value_pair(const PVValuePair& pair)
+{
+    const std::string& name = pair.first;
+    const std::string& prefix = _get_prefix_from_name(name);
+    return _model_manager.get_model_by_prefix(prefix);
 }
 const std::string VaDriver::_get_prefix_from_name(const std::string& name)
 {
     // TODO: generalise
     return std::string("si");
 }
+
 void VaDriver::_recv_values_from_models()
 {
     for (const auto& prefix : model_prefixes) {

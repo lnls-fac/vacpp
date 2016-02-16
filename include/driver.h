@@ -45,12 +45,16 @@ private:
 
     void _start_model_threads();
     std::thread* _start_model_thread(Model* model);
-    void _start_update_thread();
     void _delete_model_threads();
+    
+    void _start_update_thread();
     void _delete_update_thread();
 
     void _send_values_to_models();
+    void _send_value_to_model();
+    Model* _get_model_from_pv_value_pair(const PVValuePair& pair);
     const std::string _get_prefix_from_name(const std::string& name);
+
     void _recv_values_from_models();
     void _recv_values_from_model(Model* model);
 };
