@@ -2,7 +2,7 @@
 
 
 const std::chrono::milliseconds VaDriver::_min_update_duration(100);
-const std::chrono::milliseconds VaDriver::_finalisation_wait(1000);
+const std::chrono::milliseconds VaDriver::_finalisation_timeout(1000);
 
 VaDriver::VaDriver()
 {
@@ -45,11 +45,6 @@ int VaDriver::start()
     // TODO: check if everything is up and return status
     return SUCCESS;
 }
-void VaDriver::process_communication()
-{
-    _send_values_to_models();
-    _recv_values_from_models();
-}
 int VaDriver::stop()
 {
     // TODO: evaluate use of exception instead of return code
@@ -57,10 +52,16 @@ int VaDriver::stop()
         return ERROR_DRIVER_NOT_STARTED;
 
     _is_running.store(false);
-    std::this_thread::sleep_for(_finalisation_wait);
+    std::this_thread::sleep_for(_finalisation_timeout);
 
     // TODO: check if threads stopped and return status
     return SUCCESS;
+}
+
+void VaDriver::process_communication()
+{
+    _send_values_to_models();
+    _recv_values_from_models();
 }
 
 int VaDriver::set_value(const std::string& name, const double& value)

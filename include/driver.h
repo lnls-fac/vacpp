@@ -25,15 +25,16 @@ public:
     ~VaDriver();
 
     int start();
-    void process_communication();
     int stop();
+
+    void process_communication();
 
     int set_value(const std::string& name, const double& value);
     int get_number_of_values_available();
     std::vector<PVValuePair> get_values(int quantity);
 private:
     static const std::chrono::milliseconds _min_update_duration;
-    static const std::chrono::milliseconds _finalisation_wait;
+    static const std::chrono::milliseconds _finalisation_timeout;
 
     Flag _is_running;
     std::mutex _queue_to_server_mutex, _queue_from_server_mutex;
@@ -46,7 +47,7 @@ private:
     void _start_model_threads();
     std::thread* _start_model_thread(Model* model);
     void _delete_model_threads();
-    
+
     void _start_update_thread();
     void _delete_update_thread();
 
