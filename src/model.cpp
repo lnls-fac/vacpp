@@ -60,7 +60,8 @@ void Model::_update_state()
 }
 void Model::_update_values()
 {
-    static int i = 0; // FIXME: debug code
+    // FIXME: remove debug code
+    static int i = 0;
 
     std::unique_lock<std::mutex> ql(_queue_to_driver_mutex);
     _queue_to_driver.push(PVValuePair(std::string("PVNAME"), double(i++)));

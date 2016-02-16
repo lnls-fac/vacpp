@@ -37,7 +37,7 @@ BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 
 .NOTPARALLEL:
 
-.PHONY: vacpp debug package swig clean
+.PHONY: vacpp debug package swig doc clean
 
 
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
@@ -45,6 +45,9 @@ vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 package: $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so
 
 debug: vacpp
+
+doc:
+	cd doc; doxygen Doxyfile
 
 
 # Find dependencies

@@ -10,10 +10,11 @@
 class AcceleratorModel : public Model {
 public:
     AcceleratorModel(std::string flat_file_name);
-    virtual void _update_state();
     void print();
 private:
     Accelerator _accelerator;
+    
+    virtual void _update_state();
 };
 
 

@@ -58,7 +58,7 @@ int VaDriver::stop()
 
     _is_running.store(false);
     std::this_thread::sleep_for(_finalisation_wait);
-    
+
     // TODO: check if threads stopped and return status
     return SUCCESS;
 }
