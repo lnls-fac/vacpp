@@ -5,18 +5,27 @@
 
 #include "driver.h"
 
-static const std::string sidi_current_pv = "CURRENT";
+class PV {
+public:
+  PV(const std::string& name_, double init_value_ = 0) {
+    this->name = name_;
+    this->value = init_value_;
+  }
+  std::string name;
+  double value;
+};
 
-static double sipa_lifetime = 10.0;
+static PV sidi_current  ("SIDI-CURRENT",  300.0);
+static PV sipa_lifetime ("SIPA-LIFETIME", 10.0);
+static PV bodi_current  ("BODI-CURRENT",  2.0);
+static PV bopa_lifetime ("BOPA-LIFETIME", 1.0);
 
-double update_sidi_current() {
-  static double sidi_current = 300;
+static void update_currents() {
   static time_t t0 = time(0);
-  time_t t1 = time(0);
-  double newI = sidi_current * exp(-(t1 - t0)/(3600*sipa_lifetime));
+         time_t t1 = time(0);
+  sidi_current.value *= exp(-(t1 - t0)/(3600*sipa_lifetime.value));
+  bodi_current.value *= exp(-(t1 - t0)/(3600*bopa_lifetime.value));
   t0 = t1;
-  sidi_current = newI;
-  return newI;
 }
 
 int python_to_cpp(const std::string& pv, const double& value) {
@@ -25,9 +34,12 @@ int python_to_cpp(const std::string& pv, const double& value) {
 
 void cpp_to_python(std::vector<std::string>& pvs, std::vector<double>& values) {
 
-  double sidi_current = update_sidi_current();
+  update_currents();
 
-  pvs.push_back(sidi_current_pv);
-  values.push_back(sidi_current);
+  pvs.push_back(sidi_current.name);  values.push_back(sidi_current.value);
+  pvs.push_back(sipa_lifetime.name); values.push_back(sipa_lifetime.value);
+
+  pvs.push_back(bodi_current.name);  values.push_back(bodi_current.value);
+  pvs.push_back(bopa_lifetime.name); values.push_back(bopa_lifetime.value);
 
 }

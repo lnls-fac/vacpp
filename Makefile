@@ -26,7 +26,7 @@ LIBS = -lpthread -ltrackcpp
 
 SRCS = \
 	driver.cpp
-	
+
 BINSRC = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(SRCS:.cpp=.o))
@@ -37,6 +37,8 @@ BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 .PHONY: vacpp debug package swig doc clean
 
 
+all: vacpp package
+	
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
 package: $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so

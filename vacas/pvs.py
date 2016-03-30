@@ -1,6 +1,7 @@
 pvdb = {
 
-    'CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
+    'SIPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
+    'SIDI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
 
     'SIPS-BEND-FAM' : {'value': 0.000, 'prec': 3, 'unit': 'A' },
     'SIPS-SFA-FAM'  : {'value': 0.000, 'prec': 3, 'unit': 'A' },
@@ -27,5 +28,6 @@ pvdb = {
     'SIPS-SFB-FAM'  : {'value': 0.000, 'prec': 3, 'unit': 'A' },
     'SIPS-QDB2-FAM' : {'value': 0.000, 'prec': 3, 'unit': 'A' },
 
-    'SIPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
+    'BOPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
+    'BODI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
 }
