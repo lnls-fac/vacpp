@@ -2,7 +2,9 @@
 import sys
 import pcaspy
 import utils
-#import vacpp
+from random import randint
+import threading
+
 
 sys.path.append('../build/release/package')
 import vacpp
@@ -14,17 +16,22 @@ class PCASDriver(pcaspy.Driver):
     def __init__(self):
         super(PCASDriver, self).__init__()
         #self.driver = vacpp.VaDriver()
-        #self.thread = threading.Thread(group=None,target=PCASDriver.epics_memory_update, args=(self, self.driver))
+        #self.thread = threading.Thread(group=None,target=PCASDriver.epics_memory_update)
 
+    @staticmethod
     def epics_memory_update(self):
         pvs = vacpp.CppStringVector()
         values = vacpp.CppDoubleVector()
         vacpp.cpp_to_python(pvs, values)
         for i in range(len(pvs)):
             self.setParam(pvs[i], values[i])
+        self.updatePVs()
 
     def read(self, reason):
-        value = super().read(reason)
+        if reason == 'SSIDI-CURRENT':
+            value = float(randint(0,20))
+        else:
+            value = super().read(reason)
         utils.log(message1='read', message2=reason+':'+str(value), color=None, attr=None)
         return value
 

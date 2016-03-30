@@ -24,7 +24,7 @@ static void update_currents() {
   static time_t t0 = time(0);
          time_t t1 = time(0);
   sidi_current.value *= exp(-(t1 - t0)/(3600*sipa_lifetime.value));
-  bodi_current.value *= exp(-(t1 - t0)/(3600*bopa_lifetime.value));
+  //bodi_current.value *= exp(-(t1 - t0)/(3600*bopa_lifetime.value));
   t0 = t1;
 }
 
@@ -34,12 +34,12 @@ int python_to_cpp(const std::string& pv, const double& value) {
 
 void cpp_to_python(std::vector<std::string>& pvs, std::vector<double>& values) {
 
-  update_currents();
-
+  //update_currents();
+  sidi_current.value += 1;
   pvs.push_back(sidi_current.name);  values.push_back(sidi_current.value);
-  pvs.push_back(sipa_lifetime.name); values.push_back(sipa_lifetime.value);
+  //pvs.push_back(sipa_lifetime.name); values.push_back(sipa_lifetime.value);
 
-  pvs.push_back(bodi_current.name);  values.push_back(bodi_current.value);
-  pvs.push_back(bopa_lifetime.name); values.push_back(bopa_lifetime.value);
+  //pvs.push_back(bodi_current.name);  values.push_back(bodi_current.value);
+  //pvs.push_back(bopa_lifetime.name); values.push_back(bopa_lifetime.value);
 
 }

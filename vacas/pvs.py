@@ -1,7 +1,7 @@
 pvdb = {
 
     'SIPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
-    'SIDI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
+    'SIDI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA', 'scan':1},
 
     'SIPS-BEND-FAM' : {'value': 0.000, 'prec': 3, 'unit': 'A' },
     'SIPS-SFA-FAM'  : {'value': 0.000, 'prec': 3, 'unit': 'A' },
