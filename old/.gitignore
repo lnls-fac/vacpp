@@ -1,0 +1,9 @@
+*~
+.depend
+build/
+files/
+swig/*.cxx
+swig/*.py
+vacas/__pycache__/
+doc/html/
+doc/latex/
