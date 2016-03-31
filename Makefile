@@ -21,11 +21,14 @@ endif
 LDFLAGS = $(MACHINE)
 CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread -fPIC
 
-INC = -I./$(INCDIR) -I/usr/include/python3.4
+INC = -I./$(INCDIR) -I/usr/include/python3.4 -I../trackcpp/include/trackcpp
 LIBS = -lpthread -ltrackcpp
 
 SRCS = \
-	driver.cpp
+	driver.cpp \
+	beamcharge.cpp \
+	ring_model.cpp \
+	sirius_models.cpp
 
 BINSRC = main.cpp
 
@@ -38,7 +41,7 @@ BINOBJ = $(addprefix $(OBJDIR)/$(TGTDIR)/, $(BINSRC:.cpp=.o))
 
 
 all: vacpp package
-	
+
 vacpp: $(OBJDIR)/$(TGTDIR)/vacpp
 
 package: $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so
