@@ -26,7 +26,7 @@ LIBS = -lpthread -ltrackcpp
 
 SRCS = \
 	driver.cpp \
-	beamcharge.cpp \
+	beam_charge.cpp \
 	ring_model.cpp \
 	sirius_models.cpp
 

@@ -2,16 +2,19 @@
 #define SI_MODEL_H
 
 #include "accelerator.h"
-#include "beamcharge.h"
+#include "beam_charge.h"
 
 class RingModel : protected Accelerator {
 
 public:
-  RingModel(const double energy, const int harmonic_number);
+  RingModel();
+  BeamCharge beam_charge;
+  const Accelerator& get_accelerator() const { return accelerator; }
+  Accelerator&       set_accelerator()       { return accelerator; }
 
 protected:
-  BeamCharge charge;
-  
+  Accelerator accelerator;
+
 };
 
 
