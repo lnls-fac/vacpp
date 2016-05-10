@@ -34,7 +34,7 @@ public:
   BeamCharge& set_quantum_lifetime(const double& quantum_lifetime);
   BeamCharge& set_touschek_coefficient(const double& touschek_coefficient);
 
-protected:
+//protected:
 
   std::vector<double> bunches;
   double elastic_lossrate;

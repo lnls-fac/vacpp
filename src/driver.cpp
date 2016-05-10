@@ -17,13 +17,17 @@ int python_to_cpp(const std::string& pv, const double& value) {
 
 void cpp_to_python(std::vector<std::string>& pvs, std::vector<double>& values) {
 
+  // BO pvs
+  models.set_bo_model().beam_charge.update_bunches();
+  const double bo_revolution_period = models.get_bo_model().get_revolution_period();
+  pvs.push_back("BODI-CURRENT"); values.push_back(1000*models.set_bo_model().beam_charge.get_charge() / bo_revolution_period);
+  pvs.push_back("BOPA-LIFETIME"); values.push_back(models.set_bo_model().beam_charge.get_lifetime()/3600);
+
+  // SI pvs
   models.set_si_model().beam_charge.update_bunches();
-  pvs.push_back("SIDI-CURRENT"); values.push_back(models.set_si_model().beam_charge.get_charge());
-  pvs.push_back("SIPA-LIFETIME"); values.push_back(models.set_si_model().beam_charge.get_charge());
-  // update_currents();
-  // pvs.push_back(sidi_current.name);  values.push_back(sidi_current.value);
-  // pvs.push_back(sipa_lifetime.name); values.push_back(sipa_lifetime.value);
-  // pvs.push_back(bodi_current.name);  values.push_back(bodi_current.value);
-  // pvs.push_back(bopa_lifetime.name); values.push_back(bopa_lifetime.value);
+  const double si_revolution_period = models.get_si_model().get_revolution_period();
+  pvs.push_back("SIDI-CURRENT"); values.push_back(1000*models.set_si_model().beam_charge.get_charge() / si_revolution_period);
+  pvs.push_back("SIPA-LIFETIME"); values.push_back(models.set_si_model().beam_charge.get_lifetime()/3600);
+
 
 }

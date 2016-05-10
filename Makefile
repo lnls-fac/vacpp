@@ -56,8 +56,10 @@ doc:
 $(shell $(CXX) -MM $(CFLAGS) $(INC) $(addprefix $(SRCDIR)/, $(SRCS)) | sed 's/.*\.o/$(OBJDIR)\/$(TGTDIR)\/&/' > .depend)
 -include .depend
 
+libtrackcpp:
+	cd /home/fac_files/code/trackcpp; make libtrackcpp
 
-$(OBJDIR)/$(TGTDIR)/vacpp: $(OBJS) $(BINOBJ) | $(OBJDIR)/$(TGTDIR)
+$(OBJDIR)/$(TGTDIR)/vacpp: libtrackcpp $(OBJS) $(BINOBJ) | $(OBJDIR)/$(TGTDIR)
 	$(CXX) $(LDFLAGS) $(OBJS) $(BINOBJ) $(LIBS) -o $@
 
 $(OBJDIR)/$(TGTDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)/$(TGTDIR)
@@ -67,7 +69,7 @@ $(OBJDIR)/$(TGTDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)/$(TGTDIR)
 $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/vacpp.py: $(SWIGDIR)/vacpp.py | $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
 	cp $(SWIGDIR)/vacpp.py $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
 
-$(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so: $(OBJDIR)/$(TGTDIR)/libvacpp.so | $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
+$(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so: libtrackcpp $(OBJDIR)/$(TGTDIR)/libvacpp.so | $(OBJDIR)/$(TGTDIR)/$(PKGDIR)
 	cp $(OBJDIR)/$(TGTDIR)/libvacpp.so $(OBJDIR)/$(TGTDIR)/$(PKGDIR)/_vacpp.so
 
 $(OBJDIR)/$(TGTDIR)/libvacpp.so: $(OBJDIR)/$(TGTDIR)/vacpp_wrap.o $(OBJS) | $(OBJDIR)/$(TGTDIR)

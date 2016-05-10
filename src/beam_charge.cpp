@@ -34,7 +34,7 @@ BeamCharge& BeamCharge::update_bunches() {
   } else {
     const double spexp = exp(-delta_time * singleparticle_lossrate);
     for(unsigned int i = 0; i < this->bunches.size(); ++i) {
-      this->bunches[i] *= spexp / (1.0 + touschek_coefficient * this->bunches[i] * (1.0 - spexp) / singleparticle_lossrate);
+      this->bunches[i] = this->bunches[i] * spexp / (1.0 + touschek_coefficient * this->bunches[i] * (1.0 - spexp) / singleparticle_lossrate);
     }
   }
 

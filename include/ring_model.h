@@ -9,11 +9,16 @@ class RingModel : protected Accelerator {
 public:
   RingModel();
   BeamCharge beam_charge;
-  const Accelerator& get_accelerator() const { return accelerator; }
-  Accelerator&       set_accelerator()       { return accelerator; }
+  Accelerator& get_accelerator() { if (state_changed) update_state(); return accelerator; }
+  Accelerator& set_accelerator() { state_changed = true; return accelerator; }
+  void read_flatfile(std::string& fname);
+  double get_revolution_period() { if (state_changed) update_state(); return revolution_period; }
 
 protected:
+  double      revolution_period;
+  bool        state_changed;
   Accelerator accelerator;
+  void update_state();
 
 };
 
