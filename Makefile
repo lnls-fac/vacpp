@@ -1,8 +1,8 @@
 CXX = g++
 MACHINE = -m64
 
-OPTFLAG = -O3 -std=c++11
-DBGFLAG = -O0 -g3 -std=c++11
+OPTFLAG = -O3 -std=c++11 -fPIC
+DBGFLAG = -O0 -g3 -std=c++11 -fPIC
 
 INCDIR = include
 SRCDIR = src
@@ -22,7 +22,7 @@ LDFLAGS = $(MACHINE)
 CFLAGS = $(MACHINE) $(MODEFLAG) $(DFLAGS) -pthread -fPIC
 
 INC = -I./$(INCDIR) -I/usr/include/python3.4 -I../trackcpp/include/trackcpp
-LIBS = -lpthread -ltrackcpp
+LIBS = -ltrackcpp -lgsl -lgslcblas -lpthread -lm
 
 SRCS = \
 	driver.cpp \

@@ -5,6 +5,7 @@ import utils
 import time
 import threading
 
+utils.log(message1='driver', message2='init', color='yellow', attr=None)
 
 sys.path.append('./build/release/package')
 import vacpp
