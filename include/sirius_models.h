@@ -29,11 +29,15 @@ public:
   RingModel& set_si_model() { return si_model; }
   RingModel& get_bo_model() { return bo_model; }
   RingModel& set_bo_model() { return bo_model; }
+  bool       update_all();
 
 protected:
-  RingModel si_model;
-  RingModel bo_model;
+  RingModel   si_model;
+  RingModel   bo_model;
 
 };
+
+extern SiriusModels models; // global variable defined in sirius_models.cpp
+
 
 #endif

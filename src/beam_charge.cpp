@@ -65,6 +65,13 @@ BeamCharge& BeamCharge::set_touschek_coefficient(const double& touschek_coeffici
   this->touschek_coefficient = touschek_coefficient;
 }
 
+BeamCharge& BeamCharge::dump() {
+  for(unsigned int i = 0; i < this->bunches.size(); ++i) {
+    this->bunches[i] = 0.0;
+  }
+  return *this;
+}
+
 double BeamCharge::get_charge() {
   this->update_bunches();
   double charge = 0.0;
