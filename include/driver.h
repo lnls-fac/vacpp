@@ -7,7 +7,7 @@
 bool   update_models();
 void   add_dynamic_pvs_to_list();
 void   get_list_of_changed_pvs(std::vector<std::string>& pvs);
-double get_pv(const std::string& pv);
+void   get_pv(const std::string& pv, std::vector<double>& values);
 void   set_pv(const std::string& pv, const double& value);
 void   set_devicenames(const std::string& famname, const std::vector<std::string>& devicenames);
 

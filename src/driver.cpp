@@ -40,14 +40,13 @@ void get_list_of_changed_pvs(std::vector<std::string>& pvs) {
 }
 
 
-double get_pv(const std::string& pv) {
+void get_pv(const std::string& pv, std::vector<double>& values) {
   models.update_all();
-  if (pv.find("SI") == 0) return models.set_si_model().get_pv(pv);
-  if (pv.find("BO") == 0) return models.set_bo_model().get_pv(pv);
-
-  if (pv.find("TESTSI") == 0) return models.set_si_model().get_pv(pv); // test
-
-  return 0; // execution should never reach this!
+  values.clear();
+  if (pv.find("SI") == 0) return models.set_si_model().get_pv(pv, values);
+  if (pv.find("BO") == 0) return models.set_bo_model().get_pv(pv, values);
+  if (pv.find("TESTSI") == 0) return models.set_si_model().get_pv(pv, values); // test
+  // execution should never reach this!
 }
 
 

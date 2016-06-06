@@ -45,14 +45,14 @@ public:
   void         read_flatfile(std::string& fname);
   double       get_revolution_period() { if (state_changed) update_state(); return revolution_period; }
   bool         update_state();
-  double       get_pv(const std::string& pv);
+  void         get_pv(const std::string& pv, std::vector<double>& values);
   Status::type set_pv(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
 
-  double       get_pv_bpm(const std::string& pv);
-  double       get_pv_ch(const std::string& pv);
-  double       get_pv_cv(const std::string& pv);
-  double       get_pv_current(const std::string& pv);
-  double       get_pv_lifetime(const std::string& pv);
+  void         get_pv_bpm(const std::string& pv, std::vector<double>& values);
+  void         get_pv_ch(const std::string& pv, std::vector<double>& values);
+  void         get_pv_cv(const std::string& pv, std::vector<double>& values);
+  void         get_pv_current(const std::string& pv, std::vector<double>& values);
+  void         get_pv_lifetime(const std::string& pv, std::vector<double>& values);
 
   void         set_bpm_devicenames(const std::vector<std::string>& devicenames);
   void         set_ch_devicenames(const std::vector<std::string>& devicenames);

@@ -5,7 +5,7 @@ import driver
 import utils
 import time
 
-_DEFAULT_PREFIX = 'XVA-'
+_DEFAULT_PREFIX = 'XXVA-'
 _WAIT_TIMEOUT   = 0.02
 
 def run(prefix = _DEFAULT_PREFIX):

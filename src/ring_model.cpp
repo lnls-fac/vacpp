@@ -152,79 +152,135 @@ void RingModel::set_cv_devicenames(const std::vector<std::string>& devicenames) 
 
 // --- get pv set ---
 
-double RingModel::get_pv(const std::string& pv) {
+void RingModel::get_pv(const std::string& pv, std::vector<double>& values) {
   this->update_state();
-  if (pv.find("SIPS-CH") == 0) return get_pv_ch(pv);
-  if (pv.find("SIPS-CV") == 0) return get_pv_cv(pv);
-  if (pv.find("SIDI-BPM") == 0) return get_pv_bpm(pv);
-  if (pv.find("SIDI-CURRENT") == 0) return get_pv_current(pv);
-  if (pv.find("SIPA-LIFETIME") == 0) return get_pv_lifetime(pv);
-  if (pv.find("BODI-CURRENT") == 0) return get_pv_current(pv);
-  if (pv.find("BOPA-LIFETIME") == 0) return get_pv_lifetime(pv);
+  if (pv.find("SIPS-CH") == 0) return get_pv_ch(pv, values);
+  if (pv.find("SIPS-CV") == 0) return get_pv_cv(pv, values);
+  if (pv.find("SIDI-BPM") == 0) return get_pv_bpm(pv, values);
+  if (pv.find("SIDI-CURRENT") == 0) return get_pv_current(pv, values);
+  if (pv.find("SIPA-LIFETIME") == 0) return get_pv_lifetime(pv, values);
+  if (pv.find("BODI-CURRENT") == 0) return get_pv_current(pv, values);
+  if (pv.find("BOPA-LIFETIME") == 0) return get_pv_lifetime(pv, values);
   std::cerr << "get_pv:" + pv + " is not defined!" << std::endl; // should never reach this line
-  return 0;
+  values.push_back(0.0);
 }
 
-double RingModel::get_pv_ch(const std::string& pv) {
+void RingModel::get_pv_ch(const std::string& pv, std::vector<double>& values) {
   if (pv.find(label_physics) != std::string::npos) {
     std::vector<int> indices;
     this->ch.get_model_indices(pv, indices);
-    if (indices.size() == 0) { std::cerr << "could not find ch devicename" << std::endl; return 0; }
+    if (indices.size() == 0) {
+      std::cerr << "could not find ch devicename" << std::endl;
+      values.push_back(0.0);
+      return;
+    }
     const Element& e = this->accelerator.lattice[indices[0]];
     if (e.polynom_b.size() < 1) {
-      return 0.0;
+      values.push_back(0.0);
     } else {
       const double hkick = e.polynom_b[0] * e.length;
-      return hkick;
+      values.push_back(hkick);
     }
   } else {
     std::cerr << "RingModel::get_pv_ch for '" << pv << "' is not implemented yet." << std::endl;
-    return 0.0;
+    values.push_back(0.0);
   }
 }
 
-double RingModel::get_pv_cv(const std::string& pv) {
+void RingModel::get_pv_cv(const std::string& pv, std::vector<double>& values) {
   if (pv.find(label_physics) != std::string::npos) {
     std::vector<int> indices;
     this->cv.get_model_indices(pv, indices);
-    if (indices.size() == 0) { std::cerr << "could not find cv devicename" << std::endl; return 0; }
+    if (indices.size() == 0) {
+      std::cerr << "could not find cv devicename" << std::endl;
+      values.push_back(0.0);
+      return;
+    }
     const Element& e = this->accelerator.lattice[indices[0]];
     if (e.polynom_a.size() < 1) {
-      return 0.0;
+      values.push_back(0.0);
     } else {
       const double vkick = e.polynom_a[0] * e.length;
-      return vkick;
+      values.push_back(vkick);
     }
   } else {
     std::cerr << "RingModel::get_pv_ch for '" << pv << "' is not implemented yet." << std::endl;
-    return 0.0;
+    values.push_back(0.0);
   }
 }
 
-double RingModel::get_pv_bpm(const std::string& pv) {
+void RingModel::get_pv_bpm(const std::string& pv, std::vector<double>& values) {
+
   const double charge = this->beam_charge.get_charge();
-  if (charge == 0) return 0.0;
-  std::vector<int> indices;
-  this->bpm.get_model_indices(pv, indices);
-  if (indices.size() == 0) { std::cerr << "could not find bpm devicename" << std::endl; return 0; }
-  if (pv.find(":X") != std::string::npos) {
-    return 1e6*this->twiss[indices[0]].co.rx; // [um]
-  } else {
-    return 1e6*this->twiss[indices[0]].co.ry; // [um]
+  if (charge == 0) {
+    if (pv.find("FAM:") != std::string::npos) {
+      for(auto i=0; i<this->bpm.devicenames.size(); ++i) values.push_back(0.0);
+      return;
+    } else {
+      values.push_back(0.0); return;
+    }
   }
+
+  if (pv.find("FAM:MONIT:X") != std::string::npos) {
+    for(auto i=0; i<this->bpm.devicenames.size(); ++i) {
+      std::vector<int> indices;
+      this->bpm.get_model_indices(this->bpm.devicenames[i], indices);
+      if (indices.size() == 0) {
+        std::cerr << "could not find bpm devicename" << std::endl;
+        values.push_back(0.0);
+      } else {
+          values.push_back(this->twiss[indices[0]].co.rx); // [m]
+      }
+    }
+  } else if (pv.find("FAM:MONIT:Y") != std::string::npos) {
+    for(auto i=0; i<this->bpm.devicenames.size(); ++i) {
+      std::vector<int> indices;
+      this->bpm.get_model_indices(this->bpm.devicenames[i], indices);
+      if (indices.size() == 0) {
+        std::cerr << "could not find bpm devicename" << std::endl;
+        values.push_back(0.0);
+      } else {
+          values.push_back(this->twiss[indices[0]].co.ry); // [m]
+      }
+    }
+  } else {
+    if (pv.find("MONIT:X") != std::string::npos) {
+      std::vector<int> indices;
+      this->bpm.get_model_indices(pv, indices);
+      if (indices.size() == 0) {
+        std::cerr << "could not find bpm devicename " << pv << std::endl;
+        values.push_back(0.0);
+      } else {
+          values.push_back(this->twiss[indices[0]].co.rx); // [m]
+      }
+    } else if (pv.find("MONIT:Y") != std::string::npos) {
+      std::vector<int> indices;
+      this->bpm.get_model_indices(pv, indices);
+      if (indices.size() == 0) {
+        std::cerr << "could not find bpm devicename " << pv << std::endl;
+        values.push_back(0.0);
+      } else {
+          values.push_back(this->twiss[indices[0]].co.ry); // [m]
+      }
+    } else {
+      std::cerr << "could not find bpm devicename " << pv << std::endl;
+      values.push_back(0.0);
+    }
+  }
+
 }
 
-double RingModel::get_pv_current(const std::string& pv) {
+void RingModel::get_pv_current(const std::string& pv, std::vector<double>& values) {
   this->beam_charge.update_bunches();
   const double si_revolution_period = this->get_revolution_period();
   double value = 1000*this->beam_charge.get_charge() / si_revolution_period;
-  return value;
+  values.push_back(value);
 }
 
-double RingModel::get_pv_lifetime(const std::string& pv) {
+void RingModel::get_pv_lifetime(const std::string& pv, std::vector<double>& values) {
   this->beam_charge.update_bunches();
   double value = this->beam_charge.get_lifetime()/3600;
-  return value;
+  values.push_back(value);
 }
 
 

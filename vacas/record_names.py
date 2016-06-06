@@ -30,8 +30,10 @@ def get_sidi_bpm_recordnames():
     dnames = get_sidi_bpm_devicenames()
     rnames = {}
     for dname in dnames:
-        rnames[dname + ':MONIT:X'] = {'value': 0.000, 'prec': 3, 'unit': 'um'}
-        rnames[dname + ':MONIT:Y'] = {'value': 0.000, 'prec': 3, 'unit': 'um'}
+        rnames[dname + ':MONIT:X'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
+        rnames[dname + ':MONIT:Y'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
+    rnames['SIDI-BPM-FAM:MONIT:X'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 9, 'unit': 'm'}
+    rnames['SIDI-BPM-FAM:MONIT:Y'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 9, 'unit': 'm'}
     return rnames
 
 def get_sips_ch_recordnames():

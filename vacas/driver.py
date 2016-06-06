@@ -50,8 +50,12 @@ class PCASDriver(pcaspy.Driver):
     def _update_all_pvs(self):
         pvs = record_names.get_all_recordnames()
         for pv in pvs:
-            value = vacpp.get_pv(pv)
-            self.setParam(pv, value)
+            values = vacpp.CppDoubleVector()
+            vacpp.get_pv(pv, values)
+            if len(values) == 1:
+                self.setParam(pv, values[0])
+            else:
+                self.setParam(pv, list(values))
         self.updatePVs()
 
     def update_epics_memory(self):
@@ -60,8 +64,12 @@ class PCASDriver(pcaspy.Driver):
         vacpp.get_list_of_changed_pvs(pvs)
         # sets EPICS memory with those updated pv values
         for i in range(len(pvs)):
-            value = vacpp.get_pv(pvs[i])
-            self.setParam(pvs[i], value)
+            values = vacpp.CppDoubleVector()
+            vacpp.get_pv(pvs[i], values)
+            if len(values) == 1:
+                self.setParam(pvs[i], values[0])
+            else:
+                self.setParam(pvs[i], list(values))
             #self.setParam(pvs[i], values[i])
         self.updatePVs()
 
