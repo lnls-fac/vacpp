@@ -36,6 +36,12 @@ def get_sidi_bpm_recordnames():
     rnames['SIDI-BPM-FAM:MONIT:Y'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 9, 'unit': 'm'}
     return rnames
 
+def get_simo_recordnames():
+    dnames = get_sidi_bpm_devicenames()
+    rnames = {}
+    rnames['SIMO-BPM-FAM:SPOS'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 6, 'unit': 'm'}
+    return rnames
+
 def get_sips_ch_recordnames():
     dnames = get_sips_ch_devicenames()
     rnames = {}
@@ -96,6 +102,7 @@ def get_all_recordnames() :
     rnames.update(get_sidi_bpm_recordnames()) # SIDI-BPM
     rnames.update(get_sips_ch_recordnames())  # SIPS-CH
     rnames.update(get_sips_cv_recordnames())  # SIPS-CV
+    rnames.update(get_simo_recordnames())     # SIMO
     rnames.update(get_various_recordnames())  # others
     return rnames
 

@@ -48,6 +48,7 @@ public:
   void         get_pv(const std::string& pv, std::vector<double>& values);
   Status::type set_pv(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
 
+  void         get_pv_model(const std::string& pv, std::vector<double>& values);
   void         get_pv_bpm(const std::string& pv, std::vector<double>& values);
   void         get_pv_ch(const std::string& pv, std::vector<double>& values);
   void         get_pv_cv(const std::string& pv, std::vector<double>& values);

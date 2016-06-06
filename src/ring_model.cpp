@@ -159,6 +159,7 @@ void RingModel::get_pv(const std::string& pv, std::vector<double>& values) {
   if (pv.find("SIDI-BPM") == 0) return get_pv_bpm(pv, values);
   if (pv.find("SIDI-CURRENT") == 0) return get_pv_current(pv, values);
   if (pv.find("SIPA-LIFETIME") == 0) return get_pv_lifetime(pv, values);
+  if (pv.find("SIMO-") == 0) return get_pv_model(pv, values);
   if (pv.find("BODI-CURRENT") == 0) return get_pv_current(pv, values);
   if (pv.find("BOPA-LIFETIME") == 0) return get_pv_lifetime(pv, values);
   std::cerr << "get_pv:" + pv + " is not defined!" << std::endl; // should never reach this line
@@ -268,6 +269,21 @@ void RingModel::get_pv_bpm(const std::string& pv, std::vector<double>& values) {
     }
   }
 
+}
+
+void RingModel::get_pv_model(const std::string& pv, std::vector<double>& values) {
+  if (pv.find("-BPM-FAM:SPOS") != std::string::npos) {
+    for(auto i=0; i<this->bpm.devicenames.size(); ++i) {
+      std::vector<int> indices;
+      this->bpm.get_model_indices(this->bpm.devicenames[i], indices);
+      if (indices.size() == 0) {
+        std::cerr << "could not find bpm devicename" << std::endl;
+        values.push_back(0.0);
+      } else {
+          values.push_back(this->twiss[indices[0]].spos); // [m]
+      }
+    }
+  }
 }
 
 void RingModel::get_pv_current(const std::string& pv, std::vector<double>& values) {
