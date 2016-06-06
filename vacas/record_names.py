@@ -38,14 +38,16 @@ def get_sips_ch_recordnames():
     dnames = get_sips_ch_devicenames()
     rnames = {}
     for dname in dnames:
-        rnames[dname] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
+        rnames[dname + ':HARDWARE'] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
+        rnames[dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
     return rnames
 
 def get_sips_cv_recordnames():
     dnames = get_sips_cv_devicenames()
     rnames = {}
     for dname in dnames:
-        rnames[dname] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
+        rnames[dname + ':HARDWARE'] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
+        rnames[dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
     return rnames
 
 def get_various_recordnames():

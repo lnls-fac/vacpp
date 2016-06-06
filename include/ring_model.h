@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+extern const std::string label_hardware;
+extern const std::string label_physics;
 
 
 class ModelElement {
@@ -45,7 +47,6 @@ public:
   bool         update_state();
   double       get_pv(const std::string& pv);
   Status::type set_pv(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
-
 
   double       get_pv_bpm(const std::string& pv);
   double       get_pv_ch(const std::string& pv);

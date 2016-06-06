@@ -56,9 +56,8 @@ void set_pv(const std::string& pv, const double& value) {
   // This function in run when 'driver.py' received a request to change
   // a pv setpoint. It updates the model.
 
-  //std::cout << "set_pv " << pv << std::endl;
-  if (pv.find("SITEST") == 0) { models.set_si_model().set_pv(pv, value, changed_pvs); return; }
   if (pv.find("SI") == 0) { models.set_si_model().set_pv(pv, value, changed_pvs); return; }
+  if (pv.find("BO") == 0) { models.set_bo_model().set_pv(pv, value, changed_pvs); return; }
 
 
   //if (pv.find("SIPS-") != std::string::npos) { models.set_si_model().set_power_supply(pv, value, std::vector<std::string>& changed_pvs); return; }

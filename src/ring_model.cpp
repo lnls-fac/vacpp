@@ -1,6 +1,10 @@
 #include "ring_model.h"
 #include "trackcpp.h"
 #include <algorithm>
+#include <string>
+
+const std::string label_physics  = "PHYSICS";
+const std::string label_hardware = "HARDWARE";
 
 void ModelElement::get_model_indices(const std::string& pv, std::vector<int>& indices) const {
 
@@ -162,28 +166,38 @@ double RingModel::get_pv(const std::string& pv) {
 }
 
 double RingModel::get_pv_ch(const std::string& pv) {
-  std::vector<int> indices;
-  this->ch.get_model_indices(pv, indices);
-  if (indices.size() == 0) { std::cerr << "could not find ch devicename" << std::endl; return 0; }
-  const Element& e = this->accelerator.lattice[indices[0]];
-  if (e.polynom_b.size() < 1) {
-    return 0.0;
+  if (pv.find(label_physics) != std::string::npos) {
+    std::vector<int> indices;
+    this->ch.get_model_indices(pv, indices);
+    if (indices.size() == 0) { std::cerr << "could not find ch devicename" << std::endl; return 0; }
+    const Element& e = this->accelerator.lattice[indices[0]];
+    if (e.polynom_b.size() < 1) {
+      return 0.0;
+    } else {
+      const double hkick = e.polynom_b[0] * e.length;
+      return hkick;
+    }
   } else {
-    const double hkick = e.polynom_b[0] * e.length;
-    return hkick;
+    std::cerr << "RingModel::get_pv_ch for '" << pv << "' is not implemented yet." << std::endl;
+    return 0.0;
   }
 }
 
 double RingModel::get_pv_cv(const std::string& pv) {
-  std::vector<int> indices;
-  this->cv.get_model_indices(pv, indices);
-  if (indices.size() == 0) { std::cerr << "could not find cv devicename" << std::endl; return 0; }
-  const Element& e = this->accelerator.lattice[indices[0]];
-  if (e.polynom_a.size() < 1) {
-    return 0.0;
+  if (pv.find(label_physics) != std::string::npos) {
+    std::vector<int> indices;
+    this->cv.get_model_indices(pv, indices);
+    if (indices.size() == 0) { std::cerr << "could not find cv devicename" << std::endl; return 0; }
+    const Element& e = this->accelerator.lattice[indices[0]];
+    if (e.polynom_a.size() < 1) {
+      return 0.0;
+    } else {
+      const double vkick = e.polynom_a[0] * e.length;
+      return vkick;
+    }
   } else {
-    const double vkick = e.polynom_a[0] * e.length;
-    return vkick;
+    std::cerr << "RingModel::get_pv_ch for '" << pv << "' is not implemented yet." << std::endl;
+    return 0.0;
   }
 }
 

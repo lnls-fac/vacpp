@@ -21,4 +21,3 @@ def run(prefix = _DEFAULT_PREFIX):
     while True:
         pcas_driver.update_epics_memory_dynamic_pvs()
         server.process(_WAIT_TIMEOUT)
-        #time.sleep(WAIT_TIMEOUT)
