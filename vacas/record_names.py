@@ -5,6 +5,12 @@ _sidi_bpm_devicenames_fname = _os.path.join(_lnls.folder_root, 'siriusdb', 'reco
 _sips_ch_devicenames_fname  = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'sips-ch.txt')
 _sips_cv_devicenames_fname  = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'sips-cv.txt')
 
+_parameters = {
+    # these parameters are filled with model values when 'set_parameter' is invoked
+    'si_harmonic_number' : None,
+    'bo_harmonic_number' : None,
+}
+
 def _read_devicename_file(filename):
     with open(filename, 'r') as fp:
         content = fp.read()
@@ -16,6 +22,13 @@ def _read_devicename_file(filename):
         words = line.split()
         devicenames.append(words[0])
     return devicenames
+
+def set_parameter(name, value):
+    global _parameters
+    try:
+        _parameters[name] = value
+    except:
+        pass
 
 def get_sidi_bpm_devicenames():
     return _read_devicename_file(_sidi_bpm_devicenames_fname)
@@ -66,6 +79,8 @@ def get_various_recordnames():
 
         'SIDI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
         'SIPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
+        'SIDI-CURRENT-BUNCHES'  : {'type': 'float', 'count': _parameters['si_harmonic_number'], 'value': 0, 'prec': 3, 'unit': 'mA'},
+        'SIPA-LIFETIME-BUNCHES' : {'type': 'float', 'count': _parameters['si_harmonic_number'], 'value': 0, 'prec': 4, 'unit': 'h'},
 
         # 'SIPS-BEND-FAM' : {'value': 0.000, 'prec': 3, 'unit': 'A' },
         # 'SIPS-SFA-FAM'  : {'value': 0.000, 'prec': 3, 'unit': 'A' },
@@ -94,6 +109,9 @@ def get_various_recordnames():
 
         'BOPA-LIFETIME' : {'value': 0.000, 'prec': 4, 'unit': 'h' },
         'BODI-CURRENT'  : {'value': 0.000, 'prec': 3, 'unit': 'mA'},
+        'BODI-CURRENT-BUNCHES'  : {'type': 'float', 'count': _parameters['bo_harmonic_number'], 'value': 0, 'prec': 3, 'unit': 'mA'},
+        'BOPA-LIFETIME-BUNCHES' : {'type': 'float', 'count': _parameters['bo_harmonic_number'], 'value': 0, 'prec': 4, 'unit': 'h'},
+
     }
     return rnames
 

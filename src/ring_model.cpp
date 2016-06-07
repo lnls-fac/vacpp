@@ -287,16 +287,30 @@ void RingModel::get_pv_model(const std::string& pv, std::vector<double>& values)
 }
 
 void RingModel::get_pv_current(const std::string& pv, std::vector<double>& values) {
-  this->beam_charge.update_bunches();
+  BeamCharge& bc = this->beam_charge;
+  bc.update_bunches();
   const double si_revolution_period = this->get_revolution_period();
-  double value = 1000*this->beam_charge.get_charge() / si_revolution_period;
-  values.push_back(value);
+  if (pv.find("BUNCHES") != std::string::npos) {
+    for(auto i=0; i<bc.bunches.size(); ++i) values.push_back(1000 * bc.bunches[i] / si_revolution_period);
+  } else {
+    const double value = 1000*bc.get_charge() / si_revolution_period;
+    values.push_back(value);
+  }
 }
 
 void RingModel::get_pv_lifetime(const std::string& pv, std::vector<double>& values) {
-  this->beam_charge.update_bunches();
-  double value = this->beam_charge.get_lifetime()/3600;
-  values.push_back(value);
+  BeamCharge& bc = this->beam_charge;
+  bc.update_bunches();
+  if (pv.find("BUNCHES") != std::string::npos) {
+    for(auto i=0; i<bc.bunches.size(); ++i) {
+      double lossrate = bc.get_singleparticle_lossrate() + bc.touschek_coefficient * bc.bunches[i];
+      const double lifetime = 1.0 / lossrate / 3600; // [h]
+      values.push_back(lifetime);
+    }
+  } else {
+    const double value = bc.get_lifetime()/3600; // [h]
+    values.push_back(value);
+  }
 }
 
 

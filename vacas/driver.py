@@ -18,12 +18,14 @@ import vacpp
 
 class PCASDriver(pcaspy.Driver):
 
-    def __init__(self):
+    def __init__(self, rnames):
         super(PCASDriver, self).__init__()
         #self.update_thread = threading.Thread(group=None,target=PCASDriver.update,args=(self,))
+        self.rnames = rnames
         self._init_vacpp_structures()
         self._update_all_pvs()
         self.is_running = True
+
 
     def _init_vacpp_structures(self):
         devicenames = vacpp.CppStringVector()
@@ -79,10 +81,13 @@ class PCASDriver(pcaspy.Driver):
         self.update_epics_memory()
 
     def read(self, reason):
-        #changed = vacpp.update_models();
-        value = super().read(reason)
-        utils.log(message1='read', message2=reason+':'+str(value), color=None, attr=None)
-        return value
+        values = super().read(reason)
+        try:
+            vstr = '[' + str(values[0]) + ' ... ' + str(values[-1]) + '] (' + str(len(values)) + ')'
+        except:
+            vstr = str(values)
+        utils.log(message1='read', message2=reason+' | '+vstr + ' | ['+self.rnames[reason]['unit'] + ']', color=None, attr=None)
+        return values
 
     def write(self, reason, value):
         utils.log(message1='write', message2=reason+':'+str(value), color='red', attr=None)

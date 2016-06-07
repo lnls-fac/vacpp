@@ -15,15 +15,27 @@ bool update_models() {
     return changed;
 }
 
+double get_model_parameter(const std::string& name) {
+  if (name.find("si_harmonic_number") != std::string::npos) {
+    return models.set_si_model().get_accelerator().harmonic_number;
+  }
+  if (name.find("bo_harmonic_number") != std::string::npos) {
+    return models.set_bo_model().get_accelerator().harmonic_number;
+  }
+}
 
 void add_dynamic_pvs_to_list() {
 
   // This function is invoked periodically from 'driver.py' to update all dynamic pvs with model values
 
   changed_pvs.push_back("BODI-CURRENT");
+  changed_pvs.push_back("BODI-CURRENT-BUNCHES");
   changed_pvs.push_back("BOPA-LIFETIME");
+  changed_pvs.push_back("BOPA-LIFETIME-BUNCHES");
   changed_pvs.push_back("SIDI-CURRENT");
+  changed_pvs.push_back("SIDI-CURRENT-BUNCHES");
   changed_pvs.push_back("SIPA-LIFETIME");
+  changed_pvs.push_back("SIPA-LIFETIME-BUNCHES");
 
 }
 
