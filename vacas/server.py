@@ -24,7 +24,6 @@ def run(prefix = _DEFAULT_PREFIX):
         pcas_driver.update_epics_memory_dynamic_pvs()
         server.process(_WAIT_TIMEOUT)
 
-
 def set_model_parameters_to_recordnames():
     record_names.set_parameter('si_harmonic_number', int(driver.vacpp.get_model_parameter('si_harmonic_number')))
     record_names.set_parameter('bo_harmonic_number', int(driver.vacpp.get_model_parameter('bo_harmonic_number')))

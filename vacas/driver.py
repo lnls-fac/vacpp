@@ -30,24 +30,30 @@ class PCASDriver(pcaspy.Driver):
     def _init_vacpp_structures(self):
         devicenames = vacpp.CppStringVector()
         # bpms
-        dnames = record_names.get_sidi_bpm_devicenames()
+        dnames = record_names.get_bpm_devicenames()
         #print(dnames)
         devicenames.resize(len(dnames))
         for i in range(len(dnames)): devicenames[i] = dnames[i]
         vacpp.set_devicenames("si_bpm", devicenames);
         utils.log(message1='driver', message2='set si_bpm_devicenames', color='yellow', attr=None)
         # ch
-        dnames = record_names.get_sips_ch_devicenames()
+        dnames = record_names.get_ch_devicenames()
         devicenames.resize(len(dnames))
         for i in range(len(dnames)): devicenames[i] = dnames[i]
         vacpp.set_devicenames("si_ch", devicenames);
         utils.log(message1='driver', message2='set si_ch_devicenames', color='yellow', attr=None)
         # cv
-        dnames = record_names.get_sips_cv_devicenames()
+        dnames = record_names.get_cv_devicenames()
         devicenames.resize(len(dnames))
         for i in range(len(dnames)): devicenames[i] = dnames[i]
         vacpp.set_devicenames("si_cv", devicenames);
         utils.log(message1='driver', message2='set si_cv_devicenames', color='yellow', attr=None)
+        # quad
+        dnames = record_names.get_quad_devicenames()
+        devicenames.resize(len(dnames))
+        for i in range(len(dnames)): devicenames[i] = dnames[i]
+        vacpp.set_devicenames("si_quad", devicenames);
+        utils.log(message1='driver', message2='set si_quad_devicenames', color='yellow', attr=None)
 
     def _update_all_pvs(self):
         pvs = record_names.get_all_recordnames()
@@ -72,7 +78,6 @@ class PCASDriver(pcaspy.Driver):
                 self.setParam(pvs[i], values[0])
             else:
                 self.setParam(pvs[i], list(values))
-            #self.setParam(pvs[i], values[i])
         self.updatePVs()
 
     def update_epics_memory_dynamic_pvs(self):

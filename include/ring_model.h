@@ -34,7 +34,7 @@ class RingModel {
 
 public:
 
-  RingModel(const std::string& label_);
+  RingModel(const std::string& machine_);
 
   BeamCharge   beam_charge;
 
@@ -52,31 +52,36 @@ public:
   void         get_pv_bpm(const std::string& pv, std::vector<double>& values);
   void         get_pv_ch(const std::string& pv, std::vector<double>& values);
   void         get_pv_cv(const std::string& pv, std::vector<double>& values);
+  void         get_pv_quad(const std::string& pv, std::vector<double>& values);
   void         get_pv_current(const std::string& pv, std::vector<double>& values);
   void         get_pv_lifetime(const std::string& pv, std::vector<double>& values);
 
   void         set_bpm_devicenames(const std::vector<std::string>& devicenames);
   void         set_ch_devicenames(const std::vector<std::string>& devicenames);
   void         set_cv_devicenames(const std::vector<std::string>& devicenames);
+  void         set_quad_devicenames(const std::vector<std::string>& devicenames);
 
   void         set_bpm_elements(const ModelElement& el);
   void         set_ch_elements(const ModelElement& el);
   void         set_cv_elements(const ModelElement& el);
+  void         set_quad_elements(const ModelElement& el);
 
 protected:
 
-  std::string               label;
+  std::string               machine;
   Accelerator               accelerator;
   double                    revolution_period;
   bool                      state_changed;
   Matrix                    one_turn_matrix;
   std::vector<Twiss>        twiss;
-  ModelElement              bpm, ch, cv;
+  ModelElement              bpm, ch, cv, quad;
 
   Status::type update_twiss();
-  void         _add_bpm_pvs(std::vector<std::string>& changed_pvs) const;
+  void         _add_all_pvs_changed_list(std::vector<std::string>& changed_pvs) const;
+  void         _add_bpm_pvs_changed_list(std::vector<std::string>& changed_pvs) const;
   Status::type _set_pv_ch(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
   Status::type _set_pv_cv(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
+  Status::type _set_pv_quad(const std::string& pv, double value, std::vector<std::string>& changed_pvs);
 
 
 };

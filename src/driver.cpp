@@ -39,7 +39,6 @@ void add_dynamic_pvs_to_list() {
 
 }
 
-
 void get_list_of_changed_pvs(std::vector<std::string>& pvs) {
 
   // This function is invoked by 'driver.py' right after a change in pv setpoint.
@@ -51,7 +50,6 @@ void get_list_of_changed_pvs(std::vector<std::string>& pvs) {
 
 }
 
-
 void get_pv(const std::string& pv, std::vector<double>& values) {
   models.update_all();
   values.clear();
@@ -60,7 +58,6 @@ void get_pv(const std::string& pv, std::vector<double>& values) {
   if (pv.find("TESTSI") == 0) return models.set_si_model().get_pv(pv, values); // test
   // execution should never reach this!
 }
-
 
 void set_pv(const std::string& pv, const double& value) {
 
@@ -76,12 +73,12 @@ void set_pv(const std::string& pv, const double& value) {
 
 }
 
-
 void set_devicenames(const std::string& famname, const std::vector<std::string>& devicenames) {
-  if (famname == "si_bpm") { models.set_si_model().set_bpm_devicenames(devicenames); return; }
-  if (famname == "si_ch") { models.set_si_model().set_ch_devicenames(devicenames); return; }
-  if (famname == "si_cv") { models.set_si_model().set_cv_devicenames(devicenames); return; }
-  if (famname == "bo_bpm") { models.set_si_model().set_bpm_devicenames(devicenames); return; }
-  if (famname == "bo_ch") { models.set_si_model().set_ch_devicenames(devicenames); return; }
-  if (famname == "bo_cv") { models.set_si_model().set_cv_devicenames(devicenames); return; }
+  if (famname == "si_bpm")  { models.set_si_model().set_bpm_devicenames(devicenames); return; }
+  if (famname == "si_ch")   { models.set_si_model().set_ch_devicenames(devicenames); return; }
+  if (famname == "si_cv")   { models.set_si_model().set_cv_devicenames(devicenames); return; }
+  if (famname == "si_quad") { models.set_si_model().set_quad_devicenames(devicenames); return; }
+  if (famname == "bo_bpm")  { models.set_bo_model().set_bpm_devicenames(devicenames); return; }
+  if (famname == "bo_ch")   { models.set_bo_model().set_ch_devicenames(devicenames); return; }
+  if (famname == "bo_cv")   { models.set_bo_model().set_cv_devicenames(devicenames); return; }
 }

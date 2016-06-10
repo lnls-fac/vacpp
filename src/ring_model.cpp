@@ -10,17 +10,22 @@ void ModelElement::get_model_indices(const std::string& pv, std::vector<int>& in
 
   indices.clear();
 
-  // devicename idx
-  int devicename_idx;
-  for(devicename_idx=0; devicename_idx<this->devicenames.size();++devicename_idx) {
-    if (pv.find(this->devicenames[devicename_idx]) != std::string::npos) break;
-  }
-
-  // model idx
+  // checks if pointer to accelerator ModelElement belongs to anmodel idx
   if (this->accelerator_ptr == nullptr) {
     std::cerr << "null pointer for ModelElement.accelerator_ptr" << std::endl;
     return;
   }
+
+  // finds index of devicename corresponding to the pv
+  int devicename_idx;
+  for(devicename_idx=0; devicename_idx<this->devicenames.size();++devicename_idx) {
+    if (pv.find(this->devicenames[devicename_idx]) != std::string::npos) break;
+  }
+  if (devicename_idx == this->devicenames.size()) {
+    std::cerr << "ModelElement::get_model_indices: could not find a device name corresponding to pv '" << pv << "'" << std::endl;
+    return;
+  }
+
   const std::vector<Element>& latt = this->accelerator_ptr->lattice;
   std::vector<int> model_idx;
   for(auto k=0; k<this->famnames.size();++k) {
@@ -33,14 +38,17 @@ void ModelElement::get_model_indices(const std::string& pv, std::vector<int>& in
     if (idx < model_idx.size()) {
         indices.push_back(model_idx[idx]);
     } else {
-      std::cout << model_idx.size() << std::endl;
-      std::cerr << "ModelElement::get_model_indices: " + pv + " inconsistent number of model element segmentations and devicenames!" << std::endl;
+      for(auto k=0; k<model_idx.size();++k) std::cout << model_idx[k] << std::endl;
+      std::cerr << "ModelElement::get_model_indices:" << pv
+                << ", dname_idx:" << devicename_idx
+                << ", nr_dnames:" << this->devicenames.size()
+                << ", nr_elements:" << model_idx.size() << std::endl;
     }
   }
 
 }
 
-RingModel::RingModel(const std::string& label_) : label(label_) {
+RingModel::RingModel(const std::string& machine_) : machine(machine_) {
   this->accelerator.cavity_on = true;
   this->accelerator.radiation_on = true;
   this->accelerator.vchamber_on = true;
@@ -75,7 +83,7 @@ Status::type RingModel::update_twiss() {
   }
   if (status != Status::success) {
     this->twiss.clear();
-    std::cout << now_str << "    : update twiss for " << this->label << " yielded error '" << string_error_messages[status] << "'" << std::endl;
+    std::cout << now_str << "    : update twiss for machine " << this->machine << " yielded error '" << string_error_messages[status] << "'" << std::endl;
   }
 
   if (status != Status::success) {
@@ -91,9 +99,9 @@ Status::type RingModel::update_twiss() {
   std::chrono::duration<double, std::milli> duration = t_end - t_start;
   if (status != Status::success) {
     this->twiss.clear();
-    std::cout << now_str << "    : update twiss for " << this->label << " yielded error '" << string_error_messages[status] << "'" << std::endl;
+    std::cout << now_str << "    : update twiss for machine " << this->machine << " yielded error '" << string_error_messages[status] << "'" << std::endl;
   } else {
-    std::cout << now_str << "    : update twiss for " << this->label << ", " << duration.count() << " ms" <<  std::endl;
+    std::cout << now_str << "    : update twiss for machine " << this->machine << ", " << duration.count() << " ms" <<  std::endl;
   }
   return status;
 
@@ -134,6 +142,11 @@ void RingModel::set_cv_elements(const ModelElement& el) {
   this->cv.accelerator_ptr = &(this->accelerator);
 }
 
+void RingModel::set_quad_elements(const ModelElement& el) {
+  this->quad = el;
+  this->quad.accelerator_ptr = &(this->accelerator);
+}
+
 void RingModel::set_bpm_devicenames(const std::vector<std::string>& devicenames) {
   this->bpm.devicenames.resize(devicenames.size());
   for(auto i=0; i<devicenames.size(); ++i) this->bpm.devicenames[i] = devicenames[i];
@@ -149,6 +162,11 @@ void RingModel::set_cv_devicenames(const std::vector<std::string>& devicenames) 
   for(auto i=0; i<devicenames.size(); ++i) this->cv.devicenames[i] = devicenames[i];
 }
 
+void RingModel::set_quad_devicenames(const std::vector<std::string>& devicenames) {
+  this->quad.devicenames.resize(devicenames.size());
+  for(auto i=0; i<devicenames.size(); ++i) this->quad.devicenames[i] = devicenames[i];
+}
+
 
 // --- get pv set ---
 
@@ -156,6 +174,7 @@ void RingModel::get_pv(const std::string& pv, std::vector<double>& values) {
   this->update_state();
   if (pv.find("SIPS-CH") == 0) return get_pv_ch(pv, values);
   if (pv.find("SIPS-CV") == 0) return get_pv_cv(pv, values);
+  if (pv.find("SIPS-Q") == 0) return get_pv_quad(pv, values);
   if (pv.find("SIDI-BPM") == 0) return get_pv_bpm(pv, values);
   if (pv.find("SIDI-CURRENT") == 0) return get_pv_current(pv, values);
   if (pv.find("SIPA-LIFETIME") == 0) return get_pv_lifetime(pv, values);
@@ -171,7 +190,7 @@ void RingModel::get_pv_ch(const std::string& pv, std::vector<double>& values) {
     std::vector<int> indices;
     this->ch.get_model_indices(pv, indices);
     if (indices.size() == 0) {
-      std::cerr << "could not find ch devicename" << std::endl;
+      std::cerr << "could not find ch devicename '" << pv << "'" << std::endl;
       values.push_back(0.0);
       return;
     }
@@ -193,7 +212,7 @@ void RingModel::get_pv_cv(const std::string& pv, std::vector<double>& values) {
     std::vector<int> indices;
     this->cv.get_model_indices(pv, indices);
     if (indices.size() == 0) {
-      std::cerr << "could not find cv devicename" << std::endl;
+      std::cerr << "could not find cv devicename '" << pv << "'" << std::endl;
       values.push_back(0.0);
       return;
     }
@@ -205,7 +224,29 @@ void RingModel::get_pv_cv(const std::string& pv, std::vector<double>& values) {
       values.push_back(vkick);
     }
   } else {
-    std::cerr << "RingModel::get_pv_ch for '" << pv << "' is not implemented yet." << std::endl;
+    std::cerr << "RingModel::get_pv_cv for '" << pv << "' is not implemented yet." << std::endl;
+    values.push_back(0.0);
+  }
+}
+
+void RingModel::get_pv_quad(const std::string& pv, std::vector<double>& values) {
+  if (pv.find(label_physics) != std::string::npos) {
+    std::vector<int> indices;
+    this->quad.get_model_indices(pv, indices);
+    if (indices.size() == 0) {
+      std::cerr << "could not find quad devicename '" << pv << "'" << std::endl;
+      values.push_back(0.0);
+      return;
+    }
+    const Element& e = this->accelerator.lattice[indices[0]];
+    if (e.polynom_a.size() < 2) {
+      values.push_back(0.0);
+    } else {
+      const double quad = e.polynom_a[1];
+      values.push_back(quad);
+    }
+  } else {
+    std::cerr << "RingModel::get_pv_quad for '" << pv << "' is not implemented yet." << std::endl;
     values.push_back(0.0);
   }
 }
@@ -323,11 +364,17 @@ Status::type RingModel::set_pv(const std::string& pv, double value, std::vector<
 
 }
 
-void RingModel::_add_bpm_pvs(std::vector<std::string>& changed_pvs) const {
+void RingModel::_add_bpm_pvs_changed_list(std::vector<std::string>& changed_pvs) const {
     for(auto i=0; i<this->bpm.devicenames.size(); ++i) {
-      changed_pvs.push_back(this->bpm.devicenames[i]+":MONIT:X");
-      changed_pvs.push_back(this->bpm.devicenames[i]+":MONIT:Y");
+      changed_pvs.push_back(this->machine + "DI-" + this->bpm.devicenames[i]+":MONIT:X");
+      changed_pvs.push_back(this->machine + "DI-" + this->bpm.devicenames[i]+":MONIT:Y");
     }
+    changed_pvs.push_back(this->machine + "DI-BPM-FAM:MONIT:X");
+    changed_pvs.push_back(this->machine + "DI-BPM-FAM:MONIT:Y");
+}
+
+void RingModel::_add_all_pvs_changed_list(std::vector<std::string>& changed_pvs) const {
+  this->_add_bpm_pvs_changed_list(changed_pvs);
 }
 
 Status::type RingModel::_set_pv_ch(const std::string& pv, double value, std::vector<std::string>& changed_pvs) {
@@ -335,27 +382,57 @@ Status::type RingModel::_set_pv_ch(const std::string& pv, double value, std::vec
   this->ch.get_model_indices(pv, indices);
   if (indices.size() == 0) { std::cerr << "could not find ch devicename" << std::endl; return Status::inconsistent_dimensions; }
   Element& e = this->accelerator.lattice[indices[0]];
-  if (e.polynom_b.size() < 1) {
-    e.polynom_b.push_back(- value / e.length);
-  } else {
-    e.polynom_b[0] = - value / e.length;
-  }
-  this->_add_bpm_pvs(changed_pvs);
+  const unsigned int main_order = 1;
+  unsigned int max_order = e.polynom_a.size() > e.polynom_b.size() ? e.polynom_a.size() : e.polynom_b.size();
+  max_order = main_order > max_order ? main_order : max_order;
+  e.polynom_a.resize(max_order,0);
+  e.polynom_b.resize(max_order,0);
+  e.polynom_b[main_order-1] = - value / e.length;
+  this->_add_all_pvs_changed_list(changed_pvs);
   this->state_changed = true;
   return Status::success;
 }
 
 Status::type RingModel::_set_pv_cv(const std::string& pv, double value, std::vector<std::string>& changed_pvs) {
+  // std::vector<int> indices;
+  // this->cv.get_model_indices(pv, indices);
+  // if (indices.size() == 0) { std::cerr << "could not find cv devicename" << std::endl; return Status::inconsistent_dimensions; }
+  // Element& e = this->accelerator.lattice[indices[0]];
+  // if (e.polynom_a.size() < 1) {
+  //   e.polynom_a.push_back(value / e.length);
+  // } else {
+  //   e.polynom_a[0] = value / e.length;
+  // }
+  // this->_add_bpm_pvs(changed_pvs);
+  // this->state_changed = true;
+  // return Status::success;
   std::vector<int> indices;
   this->cv.get_model_indices(pv, indices);
   if (indices.size() == 0) { std::cerr << "could not find cv devicename" << std::endl; return Status::inconsistent_dimensions; }
   Element& e = this->accelerator.lattice[indices[0]];
-  if (e.polynom_a.size() < 1) {
-    e.polynom_a.push_back(value / e.length);
-  } else {
-    e.polynom_a[0] = value / e.length;
-  }
-  this->_add_bpm_pvs(changed_pvs);
+  const unsigned int main_order = 1;
+  unsigned int max_order = e.polynom_a.size() > e.polynom_b.size() ? e.polynom_a.size() : e.polynom_b.size();
+  max_order = main_order > max_order ? main_order : max_order;
+  e.polynom_a.resize(max_order,0);
+  e.polynom_b.resize(max_order,0);
+  e.polynom_a[main_order-1] = value / e.length;
+  this->_add_all_pvs_changed_list(changed_pvs);
+  this->state_changed = true;
+  return Status::success;
+}
+
+Status::type RingModel::_set_pv_quad(const std::string& pv, double value, std::vector<std::string>& changed_pvs) {
+  std::vector<int> indices;
+  this->quad.get_model_indices(pv, indices);
+  if (indices.size() == 0) { std::cerr << "could not find quad devicename" << std::endl; return Status::inconsistent_dimensions; }
+  Element& e = this->accelerator.lattice[indices[0]];
+  const unsigned int main_order = 2;
+  unsigned int max_order = e.polynom_a.size() > e.polynom_b.size() ? e.polynom_a.size() : e.polynom_b.size();
+  max_order = main_order > max_order ? main_order : max_order;
+  e.polynom_a.resize(max_order,0);
+  e.polynom_b.resize(max_order,0);
+  e.polynom_a[main_order-1] = value;
+  this->_add_all_pvs_changed_list(changed_pvs);
   this->state_changed = true;
   return Status::success;
 }

@@ -21,6 +21,16 @@ const double si_touschek_lifetime    = 6 * 3600;     // [s] (at 300mA with unifo
 const double si_quantum_lifetime     = std::numeric_limits<double>::infinity(); // [s]
 const char   si_model_flatfile[]     = "/home/fac_files/siriusdb/models_flatfiles/si-v16-01-s05-01.txt";
 
+const unsigned int si_bpm_nr_model_segmentation  = 1;
+const unsigned int si_ch_nr_model_segmentation   = 1;
+const unsigned int si_cv_nr_model_segmentation   = 1;
+const unsigned int si_quad_nr_model_segmentation = 1;
+
+const std::vector<std::string> si_bpm_famnames  = {"bpm"};
+const std::vector<std::string> si_ch_famnames   = {"sfa0","sfb0","sfp0","sda1","sdb1","sdp1","sfa2","sfb2","sfp2"};
+const std::vector<std::string> si_cv_famnames   = {"sfa0","sfb0","sfp0","sda1","sdb1","sdp1","sda3","sdb3","sdp3","cv"};
+const std::vector<std::string> si_quad_famnames = {"qfa","qda","q1","q2","q3","q4","qdb1","qfb","qdb2"};
+
 class SiriusModels {
 
 public:

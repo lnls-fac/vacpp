@@ -1,9 +1,10 @@
 import os as _os
 import lnls as _lnls
 
-_sidi_bpm_devicenames_fname = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'sidi-bpm.txt')
-_sips_ch_devicenames_fname  = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'sips-ch.txt')
-_sips_cv_devicenames_fname  = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'sips-cv.txt')
+_sidi_bpm_devicenames_fname   = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'dname-bpm.txt')
+_sips_ch_devicenames_fname    = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'dname-ch.txt')
+_sips_cv_devicenames_fname    = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'dname-cv.txt')
+_sips_quad_devicenames_fname  = _os.path.join(_lnls.folder_root, 'siriusdb', 'recordnames_flatlists', 'dname-quad.txt')
 
 _parameters = {
     # these parameters are filled with model values when 'set_parameter' is invoked
@@ -30,45 +31,56 @@ def set_parameter(name, value):
     except:
         pass
 
-def get_sidi_bpm_devicenames():
+def get_bpm_devicenames():
     return _read_devicename_file(_sidi_bpm_devicenames_fname)
 
-def get_sips_ch_devicenames():
+def get_ch_devicenames():
     return _read_devicename_file(_sips_ch_devicenames_fname)
 
-def get_sips_cv_devicenames():
+def get_cv_devicenames():
     return _read_devicename_file(_sips_cv_devicenames_fname)
 
+def get_quad_devicenames():
+    return _read_devicename_file(_sips_quad_devicenames_fname)
+
 def get_sidi_bpm_recordnames():
-    dnames = get_sidi_bpm_devicenames()
+    dnames = get_bpm_devicenames()
     rnames = {}
     for dname in dnames:
-        rnames[dname + ':MONIT:X'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
-        rnames[dname + ':MONIT:Y'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
+        rnames['SIDI-' + dname + ':MONIT:X'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
+        rnames['SIDI-' + dname + ':MONIT:Y'] = {'type': 'float', 'count': 1, 'value': 0.000, 'prec': 9, 'unit': 'm'}
     rnames['SIDI-BPM-FAM:MONIT:X'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 9, 'unit': 'm'}
     rnames['SIDI-BPM-FAM:MONIT:Y'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 9, 'unit': 'm'}
     return rnames
 
 def get_simo_recordnames():
-    dnames = get_sidi_bpm_devicenames()
+    dnames = get_bpm_devicenames()
     rnames = {}
     rnames['SIMO-BPM-FAM:SPOS'] = {'type': 'float', 'count': len(dnames), 'value': 0, 'prec': 6, 'unit': 'm'}
     return rnames
 
 def get_sips_ch_recordnames():
-    dnames = get_sips_ch_devicenames()
+    dnames = get_ch_devicenames()
     rnames = {}
     for dname in dnames:
         #rnames[dname + ':HARDWARE'] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
-        rnames[dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
+        rnames['SIPS-' + dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
     return rnames
 
 def get_sips_cv_recordnames():
-    dnames = get_sips_cv_devicenames()
+    dnames = get_cv_devicenames()
     rnames = {}
     for dname in dnames:
         #rnames[dname + ':HARDWARE'] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
-        rnames[dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
+        rnames['SIPS-' + dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': 'mrad'}
+    return rnames
+
+def get_sips_quad_recordnames():
+    dnames = get_quad_devicenames()
+    rnames = {}
+    for dname in dnames:
+        #rnames[dname + ':HARDWARE'] = {'value': 0.000, 'prec': 6, 'unit': 'A'}
+        rnames['SIPS-' + dname + ':PHYSICS']  = {'value': 0.000, 'prec': 6, 'unit': '1/m^2'}
     return rnames
 
 def get_various_recordnames():
@@ -117,11 +129,12 @@ def get_various_recordnames():
 
 def get_all_recordnames() :
     rnames = {}
-    rnames.update(get_sidi_bpm_recordnames()) # SIDI-BPM
-    rnames.update(get_sips_ch_recordnames())  # SIPS-CH
-    rnames.update(get_sips_cv_recordnames())  # SIPS-CV
-    rnames.update(get_simo_recordnames())     # SIMO
-    rnames.update(get_various_recordnames())  # others
+    rnames.update(get_sidi_bpm_recordnames())  # SIDI-BPM
+    rnames.update(get_sips_ch_recordnames())   # SIPS-CH
+    rnames.update(get_sips_cv_recordnames())   # SIPS-CV
+    #rnames.update(get_sips_quad_recordnames()) # SIPS-QUAD
+    rnames.update(get_simo_recordnames())      # SIMO
+    rnames.update(get_various_recordnames())   # others
     return rnames
 
 def get_pvs_lists():
